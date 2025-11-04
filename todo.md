@@ -43,3 +43,20 @@
 - [ ] Testes de integração
 - [x] Documentação da nova funcionalidade
 
+
+
+### Painel de Administração de Palavras-Chave e Tópicos
+
+- [x] Criar tabela de keywords e topics no banco de dados
+- [x] Adicionar funções de CRUD em db.ts
+- [x] Criar router tRPC para gerenciamento
+- [x] Criar página de administração no frontend
+- [x] Implementar listagem de keywords/topics
+- [x] Implementar criação de keywords/topics
+- [x] Implementar edição de keywords/topics
+- [x] Implementar exclusão de keywords/topics
+- [x] Adicionar filtros e busca
+- [x] Adicionar validação de formulários
+- [x] Adicionar menu no DashboardLayout
+- [ ] Documentar funcionalidade
+

@@ -12,7 +12,9 @@ import {
   InsertSocialMediaAccount, socialMediaAccounts,
   InsertSocialMediaPost, socialMediaPosts,
   InsertSentimentAnalysis, sentimentAnalysis,
-  InsertSentimentSummary, sentimentSummary
+  InsertSentimentSummary, sentimentSummary,
+  InsertMonitoredKeyword, monitoredKeywords,
+  InsertMonitoredTopic, monitoredTopics
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -345,5 +347,106 @@ export async function getSentimentSummaryByProjectAndPlatform(projectId: string,
   return await db.select()
     .from(sentimentSummary)
     .where(eq(sentimentSummary.projectId, projectId));
+}
+
+
+
+
+// ==================== MONITORED KEYWORDS & TOPICS ====================
+
+// Criar palavra-chave monitorada
+export async function createMonitoredKeyword(keyword: InsertMonitoredKeyword) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(monitoredKeywords).values(keyword);
+  return keyword;
+}
+
+// Listar palavras-chave
+export async function getMonitoredKeywords(projectId?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (projectId) {
+    return await db.select().from(monitoredKeywords).where(eq(monitoredKeywords.projectId, projectId));
+  }
+  
+  return await db.select().from(monitoredKeywords);
+}
+
+// Obter palavra-chave por ID
+export async function getMonitoredKeywordById(id: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(monitoredKeywords).where(eq(monitoredKeywords.id, id)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+// Atualizar palavra-chave
+export async function updateMonitoredKeyword(id: string, data: Partial<InsertMonitoredKeyword>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(monitoredKeywords).set(data).where(eq(monitoredKeywords.id, id));
+  return { id, ...data };
+}
+
+// Deletar palavra-chave
+export async function deleteMonitoredKeyword(id: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(monitoredKeywords).where(eq(monitoredKeywords.id, id));
+  return { success: true };
+}
+
+// Criar tópico monitorado
+export async function createMonitoredTopic(topic: InsertMonitoredTopic) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(monitoredTopics).values(topic);
+  return topic;
+}
+
+// Listar tópicos
+export async function getMonitoredTopics(projectId?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (projectId) {
+    return await db.select().from(monitoredTopics).where(eq(monitoredTopics.projectId, projectId));
+  }
+  
+  return await db.select().from(monitoredTopics);
+}
+
+// Obter tópico por ID
+export async function getMonitoredTopicById(id: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(monitoredTopics).where(eq(monitoredTopics.id, id)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+// Atualizar tópico
+export async function updateMonitoredTopic(id: string, data: Partial<InsertMonitoredTopic>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(monitoredTopics).set(data).where(eq(monitoredTopics.id, id));
+  return { id, ...data };
+}
+
+// Deletar tópico
+export async function deleteMonitoredTopic(id: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(monitoredTopics).where(eq(monitoredTopics.id, id));
+  return { success: true };
 }
 

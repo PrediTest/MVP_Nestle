@@ -623,6 +623,130 @@ export const appRouter = router({
       }),
   }),
 
+  // Router de Administração de Keywords e Topics
+  admin: router({
+    // ==================== KEYWORDS ====================
+    
+    // Listar keywords
+    listKeywords: protectedProcedure
+      .input(z.object({ projectId: z.string().optional() }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return db.getMonitoredKeywords(input.projectId);
+      }),
+    
+    // Criar keyword
+    createKeyword: protectedProcedure
+      .input(
+        z.object({
+          id: z.string(),
+          projectId: z.string().optional(),
+          keyword: z.string(),
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).default("all"),
+          category: z.string().optional(),
+          priority: z.enum(["low", "medium", "high"]).default("medium"),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const db = await import("./db");
+        return db.createMonitoredKeyword({
+          ...input,
+          isActive: "yes",
+          createdBy: ctx.user.id,
+        });
+      }),
+    
+    // Atualizar keyword
+    updateKeyword: protectedProcedure
+      .input(
+        z.object({
+          id: z.string(),
+          keyword: z.string().optional(),
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).optional(),
+          isActive: z.enum(["yes", "no"]).optional(),
+          category: z.string().optional(),
+          priority: z.enum(["low", "medium", "high"]).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        const { id, ...data } = input;
+        return db.updateMonitoredKeyword(id, data);
+      }),
+    
+    // Deletar keyword
+    deleteKeyword: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        return db.deleteMonitoredKeyword(input.id);
+      }),
+    
+    // ==================== TOPICS ====================
+    
+    // Listar topics
+    listTopics: protectedProcedure
+      .input(z.object({ projectId: z.string().optional() }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return db.getMonitoredTopics(input.projectId);
+      }),
+    
+    // Criar topic
+    createTopic: protectedProcedure
+      .input(
+        z.object({
+          id: z.string(),
+          projectId: z.string().optional(),
+          topic: z.string(),
+          description: z.string().optional(),
+          keywords: z.array(z.string()).optional(),
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).default("all"),
+          priority: z.enum(["low", "medium", "high"]).default("medium"),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const db = await import("./db");
+        const { keywords, ...rest } = input;
+        return db.createMonitoredTopic({
+          ...rest,
+          keywords: keywords ? JSON.stringify(keywords) : null,
+          isActive: "yes",
+          createdBy: ctx.user.id,
+        });
+      }),
+    
+    // Atualizar topic
+    updateTopic: protectedProcedure
+      .input(
+        z.object({
+          id: z.string(),
+          topic: z.string().optional(),
+          description: z.string().optional(),
+          keywords: z.array(z.string()).optional(),
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).optional(),
+          isActive: z.enum(["yes", "no"]).optional(),
+          priority: z.enum(["low", "medium", "high"]).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        const { id, keywords, ...data } = input;
+        return db.updateMonitoredTopic(id, {
+          ...data,
+          keywords: keywords ? JSON.stringify(keywords) : undefined,
+        });
+      }),
+    
+    // Deletar topic
+    deleteTopic: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        return db.deleteMonitoredTopic(input.id);
+      }),
+  }),
+
 
 
 });

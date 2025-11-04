@@ -225,3 +225,40 @@ export const sentimentSummary = mysqlTable("sentimentSummary", {
 export type SentimentSummary = typeof sentimentSummary.$inferSelect;
 export type InsertSentimentSummary = typeof sentimentSummary.$inferInsert;
 
+
+
+// Tabela de palavras-chave monitoradas
+export const monitoredKeywords = mysqlTable("monitoredKeywords", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  projectId: varchar("projectId", { length: 64 }),
+  keyword: varchar("keyword", { length: 255 }).notNull(),
+  platform: mysqlEnum("platform", ["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).default("all"),
+  isActive: mysqlEnum("isActive", ["yes", "no"]).default("yes"),
+  category: varchar("category", { length: 100 }), // produto, marca, concorrente, etc
+  priority: mysqlEnum("priority", ["low", "medium", "high"]).default("medium"),
+  createdBy: varchar("createdBy", { length: 64 }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
+});
+
+export type MonitoredKeyword = typeof monitoredKeywords.$inferSelect;
+export type InsertMonitoredKeyword = typeof monitoredKeywords.$inferInsert;
+
+// Tabela de tópicos monitorados
+export const monitoredTopics = mysqlTable("monitoredTopics", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  projectId: varchar("projectId", { length: 64 }),
+  topic: varchar("topic", { length: 255 }).notNull(),
+  description: text("description"),
+  keywords: text("keywords"), // JSON array de keywords relacionadas
+  platform: mysqlEnum("platform", ["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).default("all"),
+  isActive: mysqlEnum("isActive", ["yes", "no"]).default("yes"),
+  priority: mysqlEnum("priority", ["low", "medium", "high"]).default("medium"),
+  createdBy: varchar("createdBy", { length: 64 }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
+});
+
+export type MonitoredTopic = typeof monitoredTopics.$inferSelect;
+export type InsertMonitoredTopic = typeof monitoredTopics.$inferInsert;
+
