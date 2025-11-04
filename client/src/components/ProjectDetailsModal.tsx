@@ -94,6 +94,105 @@ const testData: Record<string, any> = {
       },
     ],
   },
+  "Moça Cremosa Premium": {
+    description: "Novo produto: Leite condensado ultra cremoso com textura aveludada, formulação premium com maior teor de sólidos lácteos e emulsificantes naturais. Desafios incluem manter cremosidade uniforme, prevenir cristalização e garantir estabilidade durante shelf-life.",
+    tests: [
+      {
+        name: "Análise de Cremosidade e Viscosidade",
+        description: "Medir viscosidade aparente em diferentes temperaturas; avaliar mouthfeel cremoso e textura aveludada usando texturômetro e painel sensorial treinado.",
+        metrics: "Viscosidade 8.000-12.000 cP a 25°C (Brookfield RV); score de cremosidade ≥8/10; ausência de granulosidade.",
+        impact: "Garante diferenciação premium no mercado; redução de 60% em reclamações de textura; aumento de 25% em satisfação do consumidor.",
+        duration: "3 dias (piloto)",
+      },
+      {
+        name: "Estabilidade de Emulsão e Separação de Fases",
+        description: "Teste de centrifugação acelerada; armazenamento em diferentes temperaturas (5°C, 25°C, 40°C); análise visual de separação de soro ou cristalização.",
+        metrics: "Estabilidade >95% após centrifugação 3.000 rpm/30min; ausência de separação visual; uniformidade de cor ΔE <2.",
+        impact: "Previne defeitos críticos (separação = 80% das reclamações); conformidade 100% com padrões Nestlé; economia R$ 580k/ano.",
+        duration: "2 semanas (acelerado)",
+      },
+      {
+        name: "Estabilidade Térmica e Shelf-Life",
+        description: "Armazenamento acelerado (40°C/75% UR por 12 semanas); medir mudanças em viscosidade, cor e formação de cristais de lactose.",
+        metrics: "Shelf-life ≥24 meses; variação de viscosidade <10%; cristalização <0.5% (microscopia).",
+        impact: "Previsão de falhas com 92% acurácia via ML; evita recalls (custo médio R$ 2M); redução de 45% em perdas.",
+        duration: "12 semanas",
+      },
+      {
+        name: "Análise Sensorial e Aceitação",
+        description: "Teste triangular e escala hedônica com 100+ consumidores; avaliar cremosidade, doçura e aceitação global.",
+        metrics: "Aceitação ≥80%; preferência vs. concorrente >60%; score cremosidade ≥8.5/10.",
+        impact: "Valida posicionamento premium; integração com análise de sentimento em redes sociais; ROI 45%.",
+        duration: "1 semana",
+      },
+    ],
+  },
+  "Nescafé Espresso Cremoso": {
+    description: "Reformulação: Café solúvel premium com crema persistente, blend 100% arábica com tecnologia de microespuma. Foco em cremosidade da espuma, estabilidade da crema e intensidade aromática.",
+    tests: [
+      {
+        name: "Formação e Estabilidade de Crema",
+        description: "Avaliar altura e persistência da crema após dissolução em água quente; medir densidade e tamanho de bolhas (análise de imagem).",
+        metrics: "Altura de crema ≥3mm; persistência >2min; densidade de bolhas 50-100μm; uniformidade >90%.",
+        impact: "Diferencial competitivo (crema = atributo #1 em pesquisas); redução de 55% em reclamações; aumento de 30% em recompra.",
+        duration: "2 dias (piloto)",
+      },
+      {
+        name: "Análise de Cremosidade e Textura",
+        description: "Medir viscosidade da bebida reconstituída; avaliar mouthfeel cremoso e corpo aveludado via painel sensorial.",
+        metrics: "Viscosidade 15-25 cP; score de cremosidade ≥7.5/10; corpo médio-alto; ausência de adstringência.",
+        impact: "Alinhamento com perfil sensorial premium; conformidade com standards Nestlé; economia R$ 420k em reformulações.",
+        duration: "3 dias",
+      },
+      {
+        name: "Estabilidade de Aroma e Shelf-Life",
+        description: "Armazenamento acelerado (40°C/60% UR); análise de voláteis por GC-MS; teste sensorial de intensidade aromática.",
+        metrics: "Shelf-life ≥18 meses; retenção de voláteis >85%; score aromático ≥7/10; ausência de rancidez.",
+        impact: "Previsão de degradação com 88% acurácia; integração com IoT em armazéns; redução de 40% em perdas.",
+        duration: "8 semanas",
+      },
+      {
+        name: "Estabilidade Física e Aglomeração",
+        description: "Teste de fluidez do pó; análise de aglomeração em diferentes umidades; dissolução instantânea.",
+        metrics: "Tempo de dissolução <5s; fluidez >70% (ângulo de repouso <35°); umidade <4%.",
+        impact: "Previne aglomeração (risco manufatura); redução de 35% em downtime; conformidade ISO 100%.",
+        duration: "1 semana",
+      },
+    ],
+  },
+  "Nestlé Iogurte Grego Cremoso": {
+    description: "Novo produto: Iogurte grego com 10% de gordura, textura ultra cremosa e proteína elevada (15g/porção). Desafios incluem manter cremosidade sem sinérese, estabilidade de textura e shelf-life refrigerado.",
+    tests: [
+      {
+        name: "Análise de Cremosidade e Consistência",
+        description: "Medir firmeza e cremosidade usando texturômetro (back extrusion); avaliar mouthfeel e ausência de granulosidade.",
+        metrics: "Firmeza 150-250g (probe 35mm); cremosidade score ≥8.5/10; consistência homogênea >95%.",
+        impact: "Posicionamento premium validado; redução de 70% em reclamações de textura; aumento de 40% em satisfação.",
+        duration: "2 dias (piloto)",
+      },
+      {
+        name: "Estabilidade e Controle de Sinérese",
+        description: "Armazenamento refrigerado (4°C) por 45 dias; medir separação de soro (sinérese) por centrifugação e drenagem.",
+        metrics: "Sinérese <5% após 45 dias; estabilidade visual >98%; pH 4.2-4.6 estável.",
+        impact: "Previne principal defeito de iogurte grego (sinérese = 65% reclamações); economia R$ 680k/ano; shelf-life estendido.",
+        duration: "45 dias",
+      },
+      {
+        name: "Estabilidade Microbiológica e Shelf-Life",
+        description: "Contagem de bactérias lácticas, bolores e leveduras; teste de vida útil em diferentes temperaturas de armazenamento.",
+        metrics: "Shelf-life ≥45 dias a 4°C; contagem láctica >10^7 UFC/g; ausência de contaminantes; acidez estável.",
+        impact: "Conformidade 100% com ISO/FDA; integração com blockchain para rastreabilidade; redução de 50% em recalls.",
+        duration: "6 semanas",
+      },
+      {
+        name: "Análise Sensorial e Perfil de Textura",
+        description: "Teste afetivo com consumidores; análise descritiva quantitativa (QDA) para mapear perfil de cremosidade e sabor.",
+        metrics: "Aceitação ≥85%; cremosidade score ≥9/10; preferência vs. líder de mercado >55%.",
+        impact: "Validação de formulação premium; análise preditiva de aceitação via BERT; ROI 42%; payback 9 meses.",
+        duration: "2 semanas",
+      },
+    ],
+  },
   "Kit Kat Vegano": {
     description: "Versão vegana: Chocolate alternativo à base de arroz/leite vegetal, wafer crocante, sem laticínios. Ênfase em textura crocante do wafer, derretimento do chocolate e estabilidade vegana.",
     tests: [

@@ -154,3 +154,15 @@
 - [x] Incluir impactos esperados e duração estimada
 - [x] Atualizar botão "Ver Detalhes" para abrir modal/página
 
+
+
+
+### Adicionar Produtos Fictícios com Testes de Cremosidade e Estabilidade
+
+- [x] Criar produtos fictícios adicionais (3 novos produtos)
+- [x] Adicionar testes de cremosidade (viscosidade, textura)
+- [x] Adicionar testes de estabilidade (emulsão, separação de fases)
+- [x] Incluir métricas específicas para cremosidade
+- [x] Incluir métricas específicas para estabilidade
+- [x] Atualizar modal ProjectDetailsModal com novos produtos
+
