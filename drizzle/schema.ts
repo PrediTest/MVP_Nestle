@@ -141,3 +141,87 @@ export const reports = mysqlTable("reports", {
 
 export type Report = typeof reports.$inferSelect;
 export type InsertReport = typeof reports.$inferInsert;
+
+
+// Tabela de contas de redes sociais monitoradas
+export const socialMediaAccounts = mysqlTable("socialMediaAccounts", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  platform: mysqlEnum("platform", ["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site"]).notNull(),
+  accountName: varchar("accountName", { length: 255 }).notNull(),
+  accountUrl: varchar("accountUrl", { length: 500 }),
+  isActive: mysqlEnum("isActive", ["yes", "no"]).default("yes"),
+  lastSyncAt: timestamp("lastSyncAt"),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
+});
+
+export type SocialMediaAccount = typeof socialMediaAccounts.$inferSelect;
+export type InsertSocialMediaAccount = typeof socialMediaAccounts.$inferInsert;
+
+// Tabela de posts coletados de redes sociais
+export const socialMediaPosts = mysqlTable("socialMediaPosts", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  accountId: varchar("accountId", { length: 64 }).notNull(),
+  projectId: varchar("projectId", { length: 64 }), // relacionar com produto testado
+  platform: mysqlEnum("platform", ["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site"]).notNull(),
+  postId: varchar("postId", { length: 255 }).notNull(), // ID externo da plataforma
+  author: varchar("author", { length: 255 }),
+  content: text("content"),
+  url: varchar("url", { length: 500 }),
+  likes: varchar("likes", { length: 20 }),
+  comments: varchar("comments", { length: 20 }),
+  shares: varchar("shares", { length: 20 }),
+  engagement: varchar("engagement", { length: 10 }), // taxa de engajamento
+  publishedAt: timestamp("publishedAt"),
+  collectedAt: timestamp("collectedAt").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type SocialMediaPost = typeof socialMediaPosts.$inferSelect;
+export type InsertSocialMediaPost = typeof socialMediaPosts.$inferInsert;
+
+// Tabela de análises de sentimento
+export const sentimentAnalysis = mysqlTable("sentimentAnalysis", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  postId: varchar("postId", { length: 64 }).notNull(),
+  projectId: varchar("projectId", { length: 64 }), // relacionar com produto testado
+  sentiment: mysqlEnum("sentiment", ["very_positive", "positive", "neutral", "negative", "very_negative"]).notNull(),
+  sentimentScore: varchar("sentimentScore", { length: 10 }), // -1 a 1
+  confidence: varchar("confidence", { length: 10 }), // 0-100
+  keywords: text("keywords"), // JSON array de palavras-chave
+  topics: text("topics"), // JSON array de tópicos identificados
+  emotions: text("emotions"), // JSON: joy, sadness, anger, fear, surprise
+  language: varchar("language", { length: 10 }), // pt, en, es, etc
+  modelVersion: varchar("modelVersion", { length: 50 }),
+  analyzedAt: timestamp("analyzedAt").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type SentimentAnalysis = typeof sentimentAnalysis.$inferSelect;
+export type InsertSentimentAnalysis = typeof sentimentAnalysis.$inferInsert;
+
+// Tabela de agregação de sentimentos por produto/período
+export const sentimentSummary = mysqlTable("sentimentSummary", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  projectId: varchar("projectId", { length: 64 }).notNull(),
+  platform: mysqlEnum("platform", ["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).notNull(),
+  period: varchar("period", { length: 20 }), // daily, weekly, monthly
+  startDate: timestamp("startDate").notNull(),
+  endDate: timestamp("endDate").notNull(),
+  totalPosts: varchar("totalPosts", { length: 20 }),
+  veryPositiveCount: varchar("veryPositiveCount", { length: 20 }),
+  positiveCount: varchar("positiveCount", { length: 20 }),
+  neutralCount: varchar("neutralCount", { length: 20 }),
+  negativeCount: varchar("negativeCount", { length: 20 }),
+  veryNegativeCount: varchar("veryNegativeCount", { length: 20 }),
+  averageSentiment: varchar("averageSentiment", { length: 10 }), // -1 a 1
+  totalEngagement: varchar("totalEngagement", { length: 20 }),
+  topKeywords: text("topKeywords"), // JSON array
+  topTopics: text("topTopics"), // JSON array
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
+});
+
+export type SentimentSummary = typeof sentimentSummary.$inferSelect;
+export type InsertSentimentSummary = typeof sentimentSummary.$inferInsert;
+

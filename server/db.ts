@@ -8,7 +8,11 @@ import {
   InsertComplaint, complaints,
   InsertPrediction, predictions,
   InsertAlert, alerts,
-  InsertReport, reports
+  InsertReport, reports,
+  InsertSocialMediaAccount, socialMediaAccounts,
+  InsertSocialMediaPost, socialMediaPosts,
+  InsertSentimentAnalysis, sentimentAnalysis,
+  InsertSentimentSummary, sentimentSummary
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -234,3 +238,112 @@ export async function getReportsByProject(projectId: string) {
   if (!db) return [];
   return db.select().from(reports).where(eq(reports.projectId, projectId));
 }
+
+
+
+// ==================== SOCIAL MEDIA & SENTIMENT ANALYSIS ====================
+
+// Criar conta de rede social
+export async function createSocialMediaAccount(account: InsertSocialMediaAccount) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(socialMediaAccounts).values(account);
+  return account;
+}
+
+// Listar contas de redes sociais
+export async function getSocialMediaAccounts() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(socialMediaAccounts);
+}
+
+// Obter conta por ID
+export async function getSocialMediaAccountById(id: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(socialMediaAccounts).where(eq(socialMediaAccounts.id, id)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+// Criar post de rede social
+export async function createSocialMediaPost(post: InsertSocialMediaPost) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(socialMediaPosts).values(post);
+  return post;
+}
+
+// Listar posts por projeto
+export async function getPostsByProject(projectId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(socialMediaPosts).where(eq(socialMediaPosts.projectId, projectId));
+}
+
+// Listar posts por plataforma
+export async function getPostsByPlatform(platform: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(socialMediaPosts).where(eq(socialMediaPosts.platform, platform as any));
+}
+
+// Criar análise de sentimento
+export async function createSentimentAnalysis(analysis: InsertSentimentAnalysis) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(sentimentAnalysis).values(analysis);
+  return analysis;
+}
+
+// Obter análise de sentimento por post
+export async function getSentimentByPost(postId: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(sentimentAnalysis).where(eq(sentimentAnalysis.postId, postId)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+// Obter análises de sentimento por projeto
+export async function getSentimentsByProject(projectId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(sentimentAnalysis).where(eq(sentimentAnalysis.projectId, projectId));
+}
+
+// Criar resumo de sentimento
+export async function createSentimentSummary(summary: InsertSentimentSummary) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(sentimentSummary).values(summary);
+  return summary;
+}
+
+// Obter resumos de sentimento por projeto
+export async function getSentimentSummariesByProject(projectId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(sentimentSummary).where(eq(sentimentSummary.projectId, projectId));
+}
+
+// Obter resumo de sentimento por projeto e plataforma
+export async function getSentimentSummaryByProjectAndPlatform(projectId: string, platform: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select()
+    .from(sentimentSummary)
+    .where(eq(sentimentSummary.projectId, projectId));
+}
+

@@ -280,6 +280,352 @@ export const appRouter = router({
         });
       }),
   }),
+
+  // Router de Análise de Sentimento em Redes Sociais
+  sentiment: router({
+    // Listar contas de redes sociais
+    listAccounts: protectedProcedure.query(async () => {
+      const db = await import("./db");
+      return db.getSocialMediaAccounts();
+    }),
+    
+    // Criar conta de rede social
+    createAccount: protectedProcedure
+      .input(
+        z.object({
+          id: z.string(),
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site"]),
+          accountName: z.string(),
+          accountUrl: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        return db.createSocialMediaAccount({
+          ...input,
+          isActive: "yes",
+        });
+      }),
+    
+    // Coletar posts de uma plataforma
+    collectPosts: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.string(),
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site"]),
+          accountName: z.string(),
+          keywords: z.array(z.string()),
+          limit: z.number().default(50),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const socialMedia = await import("./socialMediaIntegration");
+        const db = await import("./db");
+        
+        let posts: any[] = [];
+        
+        // Coletar posts baseado na plataforma
+        switch (input.platform) {
+          case "instagram":
+            posts = await socialMedia.collectInstagramPosts(input.accountName, input.keywords, input.limit);
+            break;
+          case "facebook":
+            posts = await socialMedia.collectFacebookPosts(input.accountName, input.keywords, input.limit);
+            break;
+          case "tiktok":
+            posts = await socialMedia.collectTikTokPosts(input.accountName, input.keywords, input.limit);
+            break;
+          case "twitter":
+            posts = await socialMedia.collectTwitterPosts(input.keywords.join(" "), input.limit);
+            break;
+          case "reclameaqui":
+            posts = await socialMedia.collectReclameAquiComplaints(input.accountName, input.limit);
+            break;
+          case "nestle_site":
+            posts = await socialMedia.collectNestleSiteComments(input.accountName, input.limit);
+            break;
+        }
+        
+        // Salvar posts no banco
+        const savedPosts = [];
+        for (const post of posts) {
+          const engagement = socialMedia.calculateEngagement(post);
+          const saved = await db.createSocialMediaPost({
+            id: post.postId,
+            accountId: input.accountName,
+            projectId: input.projectId,
+            platform: input.platform,
+            postId: post.postId,
+            author: post.author,
+            content: post.content,
+            url: post.url,
+            likes: post.likes.toString(),
+            comments: post.comments.toString(),
+            shares: post.shares.toString(),
+            engagement: engagement.toFixed(2),
+            publishedAt: post.publishedAt,
+          });
+          savedPosts.push(saved);
+        }
+        
+        return {
+          success: true,
+          postsCollected: savedPosts.length,
+          posts: savedPosts,
+        };
+      }),
+    
+    // Analisar sentimento de posts
+    analyzePosts: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.string(),
+          postIds: z.array(z.string()).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        const analyzer = await import("./sentimentAnalyzer");
+        
+        // Obter posts
+        let posts;
+        if (input.postIds && input.postIds.length > 0) {
+          // Analisar posts específicos
+          posts = await Promise.all(
+            input.postIds.map(id => db.getPostsByProject(input.projectId))
+          );
+          posts = posts.flat().filter(p => input.postIds!.includes(p.id));
+        } else {
+          // Analisar todos os posts do projeto
+          posts = await db.getPostsByProject(input.projectId);
+        }
+        
+        // Analisar sentimento de cada post
+        const analyses = [];
+        for (const post of posts) {
+          const analysis = await analyzer.analyzeSentiment(post.content || "");
+          
+          const saved = await db.createSentimentAnalysis({
+            id: `sentiment_${post.id}_${Date.now()}`,
+            postId: post.id,
+            projectId: input.projectId,
+            sentiment: analysis.sentiment,
+            sentimentScore: analysis.sentimentScore.toString(),
+            confidence: analysis.confidence.toString(),
+            keywords: JSON.stringify(analysis.keywords),
+            topics: JSON.stringify(analysis.topics),
+            emotions: JSON.stringify(analysis.emotions),
+            language: analysis.language,
+            modelVersion: "gpt-4o",
+          });
+          
+          analyses.push(saved);
+        }
+        
+        // Calcular resumo
+        const summary = analyzer.calculateSentimentSummary(
+          analyses.map(a => ({
+            sentiment: a.sentiment,
+            sentimentScore: parseFloat(a.sentimentScore || "0"),
+            confidence: parseFloat(a.confidence || "0"),
+            keywords: JSON.parse(a.keywords || "[]"),
+            topics: JSON.parse(a.topics || "[]"),
+            emotions: JSON.parse(a.emotions || "{}"),
+            language: a.language || "pt",
+          }))
+        );
+        
+        return {
+          success: true,
+          analyzed: analyses.length,
+          summary,
+        };
+      }),
+    
+    // Obter análises de sentimento por projeto
+    getByProject: protectedProcedure
+      .input(z.object({ projectId: z.string() }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return db.getSentimentsByProject(input.projectId);
+      }),
+    
+    // Obter resumo de sentimento por projeto
+    getSummary: protectedProcedure
+      .input(z.object({ projectId: z.string() }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        const analyses = await db.getSentimentsByProject(input.projectId);
+        const analyzer = await import("./sentimentAnalyzer");
+        
+        return analyzer.calculateSentimentSummary(
+          analyses.map(a => ({
+            sentiment: a.sentiment,
+            sentimentScore: parseFloat(a.sentimentScore || "0"),
+            confidence: parseFloat(a.confidence || "0"),
+            keywords: JSON.parse(a.keywords || "[]"),
+            topics: JSON.parse(a.topics || "[]"),
+            emotions: JSON.parse(a.emotions || "{}"),
+            language: a.language || "pt",
+          }))
+        );
+      }),
+    
+    // Obter posts por projeto
+    getPostsByProject: protectedProcedure
+      .input(z.object({ projectId: z.string() }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return db.getPostsByProject(input.projectId);
+      }),
+    
+    // Obter posts por plataforma
+    getPostsByPlatform: protectedProcedure
+      .input(
+        z.object({
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site"]),
+        })
+      )
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return db.getPostsByPlatform(input.platform);
+      }),
+    
+    // Coletar e analisar de todas as plataformas
+    collectAndAnalyzeAll: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.string(),
+          config: z.object({
+            instagram: z.object({ account: z.string(), keywords: z.array(z.string()) }).optional(),
+            facebook: z.object({ pageId: z.string(), keywords: z.array(z.string()) }).optional(),
+            tiktok: z.object({ username: z.string(), keywords: z.array(z.string()) }).optional(),
+            twitter: z.object({ query: z.string() }).optional(),
+            reclameaqui: z.object({ company: z.string() }).optional(),
+            nestleSite: z.object({ productUrl: z.string() }).optional(),
+          }),
+          limit: z.number().default(50),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const socialMedia = await import("./socialMediaIntegration");
+        const db = await import("./db");
+        const analyzer = await import("./sentimentAnalyzer");
+        
+        // Coletar posts de todas as plataformas
+        const allPosts = await socialMedia.collectAllPlatforms(input.config, input.limit);
+        
+        // Salvar posts no banco
+        const savedPosts = [];
+        for (const post of allPosts) {
+          const engagement = socialMedia.calculateEngagement(post);
+          const saved = await db.createSocialMediaPost({
+            id: post.postId,
+            accountId: post.author,
+            projectId: input.projectId,
+            platform: post.platform,
+            postId: post.postId,
+            author: post.author,
+            content: post.content,
+            url: post.url,
+            likes: post.likes.toString(),
+            comments: post.comments.toString(),
+            shares: post.shares.toString(),
+            engagement: engagement.toFixed(2),
+            publishedAt: post.publishedAt,
+          });
+          savedPosts.push(saved);
+        }
+        
+        // Analisar sentimento de todos os posts
+        const analyses = [];
+        for (const post of savedPosts) {
+          const analysis = await analyzer.analyzeSentiment(post.content || "");
+          
+          const saved = await db.createSentimentAnalysis({
+            id: `sentiment_${post.id}_${Date.now()}`,
+            postId: post.id,
+            projectId: input.projectId,
+            sentiment: analysis.sentiment,
+            sentimentScore: analysis.sentimentScore.toString(),
+            confidence: analysis.confidence.toString(),
+            keywords: JSON.stringify(analysis.keywords),
+            topics: JSON.stringify(analysis.topics),
+            emotions: JSON.stringify(analysis.emotions),
+            language: analysis.language,
+            modelVersion: "gpt-4o",
+          });
+          
+          analyses.push(saved);
+        }
+        
+        // Calcular resumo
+        const summary = analyzer.calculateSentimentSummary(
+          analyses.map(a => ({
+            sentiment: a.sentiment,
+            sentimentScore: parseFloat(a.sentimentScore || "0"),
+            confidence: parseFloat(a.confidence || "0"),
+            keywords: JSON.parse(a.keywords || "[]"),
+            topics: JSON.parse(a.topics || "[]"),
+            emotions: JSON.parse(a.emotions || "{}"),
+            language: a.language || "pt",
+          }))
+        );
+        
+        // Salvar resumo no banco
+        const platforms = ["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site"] as const;
+        for (const platform of platforms) {
+          const platformPosts = savedPosts.filter(p => p.platform === platform);
+          if (platformPosts.length > 0) {
+            const platformAnalyses = analyses.filter(a => 
+              platformPosts.some(p => p.id === a.postId)
+            );
+            
+            const platformSummary = analyzer.calculateSentimentSummary(
+              platformAnalyses.map(a => ({
+                sentiment: a.sentiment,
+                sentimentScore: parseFloat(a.sentimentScore || "0"),
+                confidence: parseFloat(a.confidence || "0"),
+                keywords: JSON.parse(a.keywords || "[]"),
+                topics: JSON.parse(a.topics || "[]"),
+                emotions: JSON.parse(a.emotions || "{}"),
+                language: a.language || "pt",
+              }))
+            );
+            
+            await db.createSentimentSummary({
+              id: `summary_${input.projectId}_${platform}_${Date.now()}`,
+              projectId: input.projectId,
+              platform,
+              period: "monthly",
+              startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+              endDate: new Date(),
+              totalPosts: platformSummary.totalPosts.toString(),
+              veryPositiveCount: platformSummary.veryPositiveCount.toString(),
+              positiveCount: platformSummary.positiveCount.toString(),
+              neutralCount: platformSummary.neutralCount.toString(),
+              negativeCount: platformSummary.negativeCount.toString(),
+              veryNegativeCount: platformSummary.veryNegativeCount.toString(),
+              averageSentiment: platformSummary.averageSentiment.toFixed(2),
+              totalEngagement: platformPosts.reduce((sum, p) => sum + parseFloat(p.engagement || "0"), 0).toString(),
+              topKeywords: JSON.stringify(platformSummary.topKeywords),
+              topTopics: JSON.stringify(platformSummary.topTopics),
+            });
+          }
+        }
+        
+        return {
+          success: true,
+          postsCollected: savedPosts.length,
+          analyzed: analyses.length,
+          summary,
+        };
+      }),
+  }),
+
+
+
 });
 
 export type AppRouter = typeof appRouter;
+
