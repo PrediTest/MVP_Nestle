@@ -198,3 +198,11 @@
 - [x] Verificar exibição no dashboard
 - [x] Verificar exibição na página de projetos
 
+
+
+
+### Remover Card de Avaliação de Desempenho do Modal
+
+- [x] Remover seção de Avaliação de Desempenho do ProjectDetailsModal
+- [x] Testar modal após remoção
+
