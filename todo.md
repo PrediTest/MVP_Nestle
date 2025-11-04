@@ -60,3 +60,20 @@
 - [x] Adicionar menu no DashboardLayout
 - [ ] Documentar funcionalidade
 
+
+
+
+### Sistema de Alertas de Sentimento Negativo
+
+- [x] Criar tabela de alertas de sentimento no banco de dados
+- [x] Adicionar funções de detecção de picos no db.ts
+- [x] Criar serviço de monitoramento de sentimento
+- [x] Implementar lógica de detecção de anomalias
+- [x] Criar router tRPC para alertas
+- [x] Integrar com sistema de notificações do owner
+- [x] Criar página de alertas no frontend
+- [x] Implementar notificações em tempo real
+- [x] Adicionar configurações de threshold
+- [x] Adicionar histórico de alertas
+- [ ] Documentar funcionalidade
+

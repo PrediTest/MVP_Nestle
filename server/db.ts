@@ -14,7 +14,9 @@ import {
   InsertSentimentAnalysis, sentimentAnalysis,
   InsertSentimentSummary, sentimentSummary,
   InsertMonitoredKeyword, monitoredKeywords,
-  InsertMonitoredTopic, monitoredTopics
+  InsertMonitoredTopic, monitoredTopics,
+  InsertSentimentAlert, sentimentAlerts,
+  InsertAlertConfiguration, alertConfigurations
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -447,6 +449,149 @@ export async function deleteMonitoredTopic(id: string) {
   if (!db) throw new Error("Database not available");
   
   await db.delete(monitoredTopics).where(eq(monitoredTopics.id, id));
+  return { success: true };
+}
+
+
+
+
+// ==================== SENTIMENT ALERTS ====================
+
+// Criar alerta de sentimento
+export async function createSentimentAlert(alert: InsertSentimentAlert) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(sentimentAlerts).values(alert);
+  return alert;
+}
+
+// Listar alertas
+export async function getSentimentAlerts(projectId?: string, status?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  let query = db.select().from(sentimentAlerts);
+  
+  if (projectId) {
+    query = query.where(eq(sentimentAlerts.projectId, projectId)) as any;
+  }
+  
+  if (status) {
+    query = query.where(eq(sentimentAlerts.status, status as any)) as any;
+  }
+  
+  return await query;
+}
+
+// Obter alerta por ID
+export async function getSentimentAlertById(id: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(sentimentAlerts).where(eq(sentimentAlerts.id, id)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+// Atualizar alerta
+export async function updateSentimentAlert(id: string, data: Partial<InsertSentimentAlert>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(sentimentAlerts).set(data).where(eq(sentimentAlerts.id, id));
+  return { id, ...data };
+}
+
+// Reconhecer alerta
+export async function acknowledgeSentimentAlert(id: string, userId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(sentimentAlerts).set({
+    status: "acknowledged",
+    acknowledgedBy: userId,
+    acknowledgedAt: new Date(),
+  }).where(eq(sentimentAlerts.id, id));
+  
+  return { success: true };
+}
+
+// Resolver alerta
+export async function resolveSentimentAlert(id: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(sentimentAlerts).set({
+    status: "resolved",
+    resolvedAt: new Date(),
+  }).where(eq(sentimentAlerts.id, id));
+  
+  return { success: true };
+}
+
+// ==================== ALERT CONFIGURATIONS ====================
+
+// Criar configuração de alerta
+export async function createAlertConfiguration(config: InsertAlertConfiguration) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(alertConfigurations).values(config);
+  return config;
+}
+
+// Listar configurações
+export async function getAlertConfigurations(projectId?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (projectId) {
+    return await db.select().from(alertConfigurations).where(eq(alertConfigurations.projectId, projectId));
+  }
+  
+  return await db.select().from(alertConfigurations);
+}
+
+// Obter configuração por ID
+export async function getAlertConfigurationById(id: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(alertConfigurations).where(eq(alertConfigurations.id, id)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+// Obter configuração por projeto e plataforma
+export async function getAlertConfigurationByProjectAndPlatform(projectId: string, platform: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const { and } = await import("drizzle-orm");
+  const result = await db.select().from(alertConfigurations)
+    .where(and(
+      eq(alertConfigurations.projectId, projectId),
+      eq(alertConfigurations.platform, platform as any)
+    ))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : null;
+}
+
+// Atualizar configuração
+export async function updateAlertConfiguration(id: string, data: Partial<InsertAlertConfiguration>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(alertConfigurations).set(data).where(eq(alertConfigurations.id, id));
+  return { id, ...data };
+}
+
+// Deletar configuração
+export async function deleteAlertConfiguration(id: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(alertConfigurations).where(eq(alertConfigurations.id, id));
   return { success: true };
 }
 

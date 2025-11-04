@@ -262,3 +262,47 @@ export const monitoredTopics = mysqlTable("monitoredTopics", {
 export type MonitoredTopic = typeof monitoredTopics.$inferSelect;
 export type InsertMonitoredTopic = typeof monitoredTopics.$inferInsert;
 
+
+
+// Tabela de alertas de sentimento negativo
+export const sentimentAlerts = mysqlTable("sentimentAlerts", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  projectId: varchar("projectId", { length: 64 }).notNull(),
+  platform: mysqlEnum("platform", ["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]),
+  alertType: mysqlEnum("alertType", ["negative_spike", "very_negative_spike", "negative_threshold", "sentiment_drop"]).notNull(),
+  severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).default("medium"),
+  currentValue: varchar("currentValue", { length: 20 }), // % de sentimento negativo atual
+  thresholdValue: varchar("thresholdValue", { length: 20 }), // threshold configurado
+  affectedPosts: varchar("affectedPosts", { length: 20 }), // número de posts afetados
+  message: text("message"), // mensagem descritiva do alerta
+  status: mysqlEnum("status", ["active", "acknowledged", "resolved"]).default("active"),
+  acknowledgedBy: varchar("acknowledgedBy", { length: 64 }),
+  acknowledgedAt: timestamp("acknowledgedAt"),
+  resolvedAt: timestamp("resolvedAt"),
+  notificationSent: mysqlEnum("notificationSent", ["yes", "no"]).default("no"),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type SentimentAlert = typeof sentimentAlerts.$inferSelect;
+export type InsertSentimentAlert = typeof sentimentAlerts.$inferInsert;
+
+// Tabela de configurações de alertas
+export const alertConfigurations = mysqlTable("alertConfigurations", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  projectId: varchar("projectId", { length: 64 }),
+  platform: mysqlEnum("platform", ["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).default("all"),
+  negativeThreshold: varchar("negativeThreshold", { length: 10 }).default("30"), // % de posts negativos
+  veryNegativeThreshold: varchar("veryNegativeThreshold", { length: 10 }).default("15"), // % de posts muito negativos
+  sentimentDropThreshold: varchar("sentimentDropThreshold", { length: 10 }).default("20"), // % de queda no sentimento médio
+  timeWindow: varchar("timeWindow", { length: 20 }).default("24h"), // janela de tempo para análise
+  minPostsRequired: varchar("minPostsRequired", { length: 10 }).default("10"), // mínimo de posts para disparar alerta
+  isActive: mysqlEnum("isActive", ["yes", "no"]).default("yes"),
+  notifyOwner: mysqlEnum("notifyOwner", ["yes", "no"]).default("yes"),
+  createdBy: varchar("createdBy", { length: 64 }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
+});
+
+export type AlertConfiguration = typeof alertConfigurations.$inferSelect;
+export type InsertAlertConfiguration = typeof alertConfigurations.$inferInsert;
+

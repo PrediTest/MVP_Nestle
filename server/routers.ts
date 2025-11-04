@@ -747,8 +747,231 @@ export const appRouter = router({
       }),
   }),
 
-
-
+  // Router de Alertas de Sentimento
+  sentimentAlerts: router({
+    // Listar alertas
+    list: protectedProcedure
+      .input(z.object({ 
+        projectId: z.string().optional(),
+        status: z.enum(["active", "acknowledged", "resolved"]).optional()
+      }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return db.getSentimentAlerts(input.projectId, input.status);
+      }),
+    
+    // Criar alerta manualmente
+    create: protectedProcedure
+      .input(z.object({
+        id: z.string(),
+        projectId: z.string(),
+        platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).optional(),
+        alertType: z.enum(["negative_spike", "very_negative_spike", "negative_threshold", "sentiment_drop"]),
+        severity: z.enum(["low", "medium", "high", "critical"]).default("medium"),
+        currentValue: z.string().optional(),
+        thresholdValue: z.string().optional(),
+        affectedPosts: z.string().optional(),
+        message: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        return db.createSentimentAlert({
+          ...input,
+          status: "active",
+          notificationSent: "no",
+        });
+      }),
+    
+    // Reconhecer alerta
+    acknowledge: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await import("./db");
+        return db.acknowledgeSentimentAlert(input.id, ctx.user.id);
+      }),
+    
+    // Resolver alerta
+    resolve: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        return db.resolveSentimentAlert(input.id);
+      }),
+    
+    // Verificar e criar alertas automaticamente
+    checkAndCreateAlerts: protectedProcedure
+      .input(z.object({ projectId: z.string() }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        const alertService = await import("./sentimentAlertService");
+        
+        // Obter configurações de alerta do projeto
+        const configs = await db.getAlertConfigurations(input.projectId);
+        
+        if (configs.length === 0) {
+          return { alertsCreated: 0, message: "Nenhuma configuração de alerta encontrada" };
+        }
+        
+        const alertsCreated: any[] = [];
+        
+        for (const config of configs) {
+          if (config.isActive === "no") continue;
+          
+          // Obter posts recentes para análise
+          const cutoffDate = alertService.getAnalysisPeriod(config.timeWindow || "24h");
+          const posts = await db.getPostsByProject(input.projectId);
+          
+          // Filtrar posts pelo período e plataforma
+          const recentPosts = posts.filter((post: any) => {
+            const postDate = new Date(post.collectedAt);
+            const matchesPlatform = config.platform === "all" || post.platform === config.platform;
+            return postDate >= cutoffDate && matchesPlatform;
+          });
+          
+          if (recentPosts.length === 0) continue;
+          
+          // Obter análises de sentimento dos posts
+          const analyses = await db.getSentimentsByProject(input.projectId);
+          const postIds = recentPosts.map((p: any) => p.id);
+          const relevantAnalyses = analyses.filter((a: any) => postIds.includes(a.postId));
+          
+          if (relevantAnalyses.length < parseInt(config.minPostsRequired || "10")) continue;
+          
+          // Calcular média histórica (últimos 30 dias)
+          const historicalDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+          const historicalPosts = posts.filter((post: any) => {
+            const postDate = new Date(post.collectedAt);
+            return postDate >= historicalDate && postDate < cutoffDate;
+          });
+          const historicalAnalyses = analyses.filter((a: any) => 
+            historicalPosts.map((p: any) => p.id).includes(a.postId)
+          );
+          const historicalAverage = alertService.calculateHistoricalAverage(historicalAnalyses);
+          
+          // Analisar sentimento e detectar alertas
+          const alertResult = alertService.analyzeSentimentForAlerts(
+            relevantAnalyses,
+            {
+              negativeThreshold: parseFloat(config.negativeThreshold || "30"),
+              veryNegativeThreshold: parseFloat(config.veryNegativeThreshold || "15"),
+              sentimentDropThreshold: parseFloat(config.sentimentDropThreshold || "20"),
+              minPostsRequired: parseInt(config.minPostsRequired || "10"),
+            },
+            historicalAverage
+          );
+          
+          if (!alertResult.shouldAlert) continue;
+          
+          // Verificar se já existe alerta similar recente
+          const existingAlerts = await db.getSentimentAlerts(input.projectId, "active");
+          const isDuplicate = alertService.isDuplicateAlert(
+            existingAlerts,
+            alertResult,
+            input.projectId,
+            config.platform || "all",
+            6
+          );
+          
+          if (isDuplicate) continue;
+          
+          // Criar alerta
+          const alertId = `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          const alert = await db.createSentimentAlert({
+            id: alertId,
+            projectId: input.projectId,
+            platform: config.platform,
+            alertType: alertResult.alertType!,
+            severity: alertResult.severity!,
+            currentValue: alertResult.currentValue?.toString(),
+            thresholdValue: alertResult.thresholdValue?.toString(),
+            affectedPosts: alertResult.affectedPosts?.toString(),
+            message: alertResult.message!,
+            status: "active",
+            notificationSent: "no",
+          });
+          
+          // Enviar notificação se configurado
+          if (config.notifyOwner === "yes") {
+            const project = await db.getProjectById(input.projectId);
+            const notificationSent = await alertService.sendAlertNotification(
+              project?.name || input.projectId,
+              config.platform || "all",
+              alertResult
+            );
+            
+            if (notificationSent) {
+              await db.updateSentimentAlert(alertId, { notificationSent: "yes" });
+            }
+          }
+          
+          alertsCreated.push(alert);
+        }
+        
+        return {
+          alertsCreated: alertsCreated.length,
+          alerts: alertsCreated,
+          message: alertsCreated.length > 0 
+            ? `${alertsCreated.length} alerta(s) criado(s) com sucesso`
+            : "Nenhum alerta necessário no momento",
+        };
+      }),
+    
+    // Listar configurações de alerta
+    listConfigurations: protectedProcedure
+      .input(z.object({ projectId: z.string().optional() }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return db.getAlertConfigurations(input.projectId);
+      }),
+    
+    // Criar configuração de alerta
+    createConfiguration: protectedProcedure
+      .input(z.object({
+        id: z.string(),
+        projectId: z.string().optional(),
+        platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).default("all"),
+        negativeThreshold: z.string().default("30"),
+        veryNegativeThreshold: z.string().default("15"),
+        sentimentDropThreshold: z.string().default("20"),
+        timeWindow: z.string().default("24h"),
+        minPostsRequired: z.string().default("10"),
+        notifyOwner: z.enum(["yes", "no"]).default("yes"),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await import("./db");
+        return db.createAlertConfiguration({
+          ...input,
+          isActive: "yes",
+          createdBy: ctx.user.id,
+        });
+      }),
+    
+    // Atualizar configuração de alerta
+    updateConfiguration: protectedProcedure
+      .input(z.object({
+        id: z.string(),
+        negativeThreshold: z.string().optional(),
+        veryNegativeThreshold: z.string().optional(),
+        sentimentDropThreshold: z.string().optional(),
+        timeWindow: z.string().optional(),
+        minPostsRequired: z.string().optional(),
+        isActive: z.enum(["yes", "no"]).optional(),
+        notifyOwner: z.enum(["yes", "no"]).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        const { id, ...data } = input;
+        return db.updateAlertConfiguration(id, data);
+      }),
+    
+    // Deletar configuração de alerta
+    deleteConfiguration: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        return db.deleteAlertConfiguration(input.id);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
