@@ -26,28 +26,33 @@ export default function ProductComparison() {
   const [timePeriod, setTimePeriod] = useState<string>("30d");
   const [selectedPlatform, setSelectedPlatform] = useState<string>("all");
 
-  const { data: projects } = trpc.projects.listAll.useQuery();
+  const { data: projects, isLoading: projectsLoading } = trpc.projects.listAll.useQuery();
   
   // Buscar dados de sentimento para cada projeto selecionado
   const sentimentQueries = selectedProjects.map((projectId) =>
-    trpc.sentiment.getByProject.useQuery({ projectId })
+    trpc.sentiment.getByProject.useQuery({ projectId }, { enabled: selectedProjects.length > 0 })
   );
 
   const postsQueries = selectedProjects.map((projectId) =>
-    trpc.sentiment.getPostsByProject.useQuery({ projectId })
+    trpc.sentiment.getPostsByProject.useQuery({ projectId }, { enabled: selectedProjects.length > 0 })
   );
 
   // Processar dados de sentimento
   const comparisonData = useMemo(() => {
     if (selectedProjects.length === 0) return null;
+    if (!projects || projectsLoading) return null;
+    
+    // Verificar se todas as queries carregaram
+    const allLoaded = sentimentQueries.every((q) => !q.isLoading) && postsQueries.every((q) => !q.isLoading);
+    if (!allLoaded) return null;
 
     const periodDays = parseInt(timePeriod.replace("d", ""));
     const cutoffDate = new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000);
 
     return selectedProjects.map((projectId, index) => {
       const project = projects?.find((p) => p.id === projectId);
-      const sentiments = sentimentQueries[index].data || [];
-      const posts = postsQueries[index].data || [];
+      const sentiments = sentimentQueries[index]?.data || [];
+      const posts = postsQueries[index]?.data || [];
 
       // Filtrar por período e plataforma
       const filteredSentiments = sentiments.filter((s) => {

@@ -206,3 +206,12 @@
 - [x] Remover seção de Avaliação de Desempenho do ProjectDetailsModal
 - [x] Testar modal após remoção
 
+
+
+
+### Corrigir Erro na Página de Comparação de Produtos
+
+- [x] Investigar erro "Cannot read properties of undefined (reading 'length')"
+- [x] Adicionar verificações de undefined/null
+- [x] Testar página após correção
+
