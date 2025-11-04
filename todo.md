@@ -139,3 +139,18 @@
 - [x] Corrigir endpoints problemáticos (indentação e try-catch)
 - [x] Testar todas as mutações
 
+
+
+
+### Implementação de Detalhes de Testes nos Projetos
+
+- [x] Criar modal ou página de detalhes de projeto
+- [x] Adicionar descrição completa dos testes industriais
+- [x] Incluir no mínimo 3 componentes importantes por produto:
+  - [x] Nescau Zero Açúcar (Solubilidade, Estabilidade Sensorial, Shelf-Life, Análise Nutricional)
+  - [x] Ninho Phases 4 (Reconstituição, Estabilidade de Nutrientes, Scorched Particles, Microbiológica)
+  - [x] Kit Kat Vegano (Textura Wafer, Derretimento, Estabilidade Sensorial, Microbiológica)
+- [x] Adicionar tabelas com métricas de performance
+- [x] Incluir impactos esperados e duração estimada
+- [x] Atualizar botão "Ver Detalhes" para abrir modal/página
+

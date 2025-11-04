@@ -24,9 +24,12 @@ import { trpc } from "@/lib/trpc";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import ProjectDetailsModal from "@/components/ProjectDetailsModal";
 
 export default function Projects() {
   const [open, setOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -216,7 +219,15 @@ export default function Projects() {
                       </span>
                     </div>
                     <div className="pt-3 border-t border-border">
-                      <Button variant="outline" className="w-full" size="sm">
+                      <Button 
+                        variant="outline" 
+                        className="w-full" 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedProject(project);
+                          setDetailsOpen(true);
+                        }}
+                      >
                         Ver Detalhes
                       </Button>
                     </div>
@@ -227,6 +238,15 @@ export default function Projects() {
           </div>
         )}
       </div>
+      
+      {/* Modal de Detalhes do Projeto */}
+      {selectedProject && (
+        <ProjectDetailsModal
+          open={detailsOpen}
+          onOpenChange={setDetailsOpen}
+          project={selectedProject}
+        />
+      )}
     </DashboardLayout>
   );
 }
