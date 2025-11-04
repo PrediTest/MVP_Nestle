@@ -77,3 +77,19 @@
 - [x] Adicionar histórico de alertas
 - [ ] Documentar funcionalidade
 
+
+
+
+### Dashboard de Tendências de Alertas
+
+- [x] Criar página de dashboard de alertas
+- [x] Implementar gráfico de linha temporal de alertas
+- [x] Adicionar gráfico de distribuição por severidade
+- [x] Criar gráfico de alertas por plataforma
+- [x] Implementar gráfico de alertas por tipo
+- [x] Adicionar métricas agregadas (total, média, taxa de resolução)
+- [x] Implementar filtros por período
+- [x] Adicionar insights e recomendações automáticas
+- [x] Criar visualização de tempo médio de resolução
+- [x] Adicionar rota e menu no layout
+
