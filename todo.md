@@ -129,3 +129,13 @@
 - [x] Verificar se página SocialSentiment.tsx usa DashboardLayout
 - [x] Corrigir layout se necessário
 
+
+
+
+### Correção de Erro de API tRPC
+
+- [x] Investigar erro "Unexpected token '<', "<!DOCTYPE "... is not valid JSON"
+- [x] Verificar rotas tRPC que podem estar retornando HTML
+- [x] Corrigir endpoints problemáticos (indentação e try-catch)
+- [x] Testar todas as mutações
+

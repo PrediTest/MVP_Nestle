@@ -508,118 +508,123 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input }) => {
-        const socialMedia = await import("./socialMediaIntegration");
-        const db = await import("./db");
-        const analyzer = await import("./sentimentAnalyzer");
-        
-        // Coletar posts de todas as plataformas
-        const allPosts = await socialMedia.collectAllPlatforms(input.config, input.limit);
-        
-        // Salvar posts no banco
-        const savedPosts = [];
-        for (const post of allPosts) {
-          const engagement = socialMedia.calculateEngagement(post);
-          const saved = await db.createSocialMediaPost({
-            id: post.postId,
-            accountId: post.author,
-            projectId: input.projectId,
-            platform: post.platform,
-            postId: post.postId,
-            author: post.author,
-            content: post.content,
-            url: post.url,
-            likes: post.likes.toString(),
-            comments: post.comments.toString(),
-            shares: post.shares.toString(),
-            engagement: engagement.toFixed(2),
-            publishedAt: post.publishedAt,
-          });
-          savedPosts.push(saved);
-        }
-        
-        // Analisar sentimento de todos os posts
-        const analyses = [];
-        for (const post of savedPosts) {
-          const analysis = await analyzer.analyzeSentiment(post.content || "");
+        try {
+          const socialMedia = await import("./socialMediaIntegration");
+          const db = await import("./db");
+          const analyzer = await import("./sentimentAnalyzer");
           
-          const saved = await db.createSentimentAnalysis({
-            id: `sentiment_${post.id}_${Date.now()}`,
-            postId: post.id,
-            projectId: input.projectId,
-            sentiment: analysis.sentiment,
-            sentimentScore: analysis.sentimentScore.toString(),
-            confidence: analysis.confidence.toString(),
-            keywords: JSON.stringify(analysis.keywords),
-            topics: JSON.stringify(analysis.topics),
-            emotions: JSON.stringify(analysis.emotions),
-            language: analysis.language,
-            modelVersion: "gpt-4o",
-          });
+          // Coletar posts de todas as plataformas
+          const allPosts = await socialMedia.collectAllPlatforms(input.config, input.limit);
           
-          analyses.push(saved);
-        }
-        
-        // Calcular resumo
-        const summary = analyzer.calculateSentimentSummary(
-          analyses.map(a => ({
-            sentiment: a.sentiment,
-            sentimentScore: parseFloat(a.sentimentScore || "0"),
-            confidence: parseFloat(a.confidence || "0"),
-            keywords: JSON.parse(a.keywords || "[]"),
-            topics: JSON.parse(a.topics || "[]"),
-            emotions: JSON.parse(a.emotions || "{}"),
-            language: a.language || "pt",
-          }))
-        );
-        
-        // Salvar resumo no banco
-        const platforms = ["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site"] as const;
-        for (const platform of platforms) {
-          const platformPosts = savedPosts.filter(p => p.platform === platform);
-          if (platformPosts.length > 0) {
-            const platformAnalyses = analyses.filter(a => 
-              platformPosts.some(p => p.id === a.postId)
-            );
-            
-            const platformSummary = analyzer.calculateSentimentSummary(
-              platformAnalyses.map(a => ({
-                sentiment: a.sentiment,
-                sentimentScore: parseFloat(a.sentimentScore || "0"),
-                confidence: parseFloat(a.confidence || "0"),
-                keywords: JSON.parse(a.keywords || "[]"),
-                topics: JSON.parse(a.topics || "[]"),
-                emotions: JSON.parse(a.emotions || "{}"),
-                language: a.language || "pt",
-              }))
-            );
-            
-            await db.createSentimentSummary({
-              id: `summary_${input.projectId}_${platform}_${Date.now()}`,
+          // Salvar posts no banco
+          const savedPosts = [];
+          for (const post of allPosts) {
+            const engagement = socialMedia.calculateEngagement(post);
+            const saved = await db.createSocialMediaPost({
+              id: post.postId,
+              accountId: post.author,
               projectId: input.projectId,
-              platform,
-              period: "monthly",
-              startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-              endDate: new Date(),
-              totalPosts: platformSummary.totalPosts.toString(),
-              veryPositiveCount: platformSummary.veryPositiveCount.toString(),
-              positiveCount: platformSummary.positiveCount.toString(),
-              neutralCount: platformSummary.neutralCount.toString(),
-              negativeCount: platformSummary.negativeCount.toString(),
-              veryNegativeCount: platformSummary.veryNegativeCount.toString(),
-              averageSentiment: platformSummary.averageSentiment.toFixed(2),
-              totalEngagement: platformPosts.reduce((sum, p) => sum + parseFloat(p.engagement || "0"), 0).toString(),
-              topKeywords: JSON.stringify(platformSummary.topKeywords),
-              topTopics: JSON.stringify(platformSummary.topTopics),
+              platform: post.platform,
+              postId: post.postId,
+              author: post.author,
+              content: post.content,
+              url: post.url,
+              likes: post.likes.toString(),
+              comments: post.comments.toString(),
+              shares: post.shares.toString(),
+              engagement: engagement.toFixed(2),
+              publishedAt: post.publishedAt,
             });
+            savedPosts.push(saved);
           }
+          
+          // Analisar sentimento de todos os posts
+          const analyses = [];
+          for (const post of savedPosts) {
+            const analysis = await analyzer.analyzeSentiment(post.content || "");
+            
+            const saved = await db.createSentimentAnalysis({
+              id: `sentiment_${post.id}_${Date.now()}`,
+              postId: post.id,
+              projectId: input.projectId,
+              sentiment: analysis.sentiment,
+              sentimentScore: analysis.sentimentScore.toString(),
+              confidence: analysis.confidence.toString(),
+              keywords: JSON.stringify(analysis.keywords),
+              topics: JSON.stringify(analysis.topics),
+              emotions: JSON.stringify(analysis.emotions),
+              language: analysis.language,
+              modelVersion: "gpt-4o",
+            });
+            
+            analyses.push(saved);
+          }
+          
+          // Calcular resumo
+          const summary = analyzer.calculateSentimentSummary(
+            analyses.map(a => ({
+              sentiment: a.sentiment,
+              sentimentScore: parseFloat(a.sentimentScore || "0"),
+              confidence: parseFloat(a.confidence || "0"),
+              keywords: JSON.parse(a.keywords || "[]"),
+              topics: JSON.parse(a.topics || "[]"),
+              emotions: JSON.parse(a.emotions || "{}"),
+              language: a.language || "pt",
+            }))
+          );
+          
+          // Salvar resumo no banco
+          const platforms = ["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site"] as const;
+          for (const platform of platforms) {
+            const platformPosts = savedPosts.filter(p => p.platform === platform);
+            if (platformPosts.length > 0) {
+              const platformAnalyses = analyses.filter(a => 
+                platformPosts.some(p => p.id === a.postId)
+              );
+              
+              const platformSummary = analyzer.calculateSentimentSummary(
+                platformAnalyses.map(a => ({
+                  sentiment: a.sentiment,
+                  sentimentScore: parseFloat(a.sentimentScore || "0"),
+                  confidence: parseFloat(a.confidence || "0"),
+                  keywords: JSON.parse(a.keywords || "[]"),
+                  topics: JSON.parse(a.topics || "[]"),
+                  emotions: JSON.parse(a.emotions || "{}"),
+                  language: a.language || "pt",
+                }))
+              );
+              
+              await db.createSentimentSummary({
+                id: `summary_${input.projectId}_${platform}_${Date.now()}`,
+                projectId: input.projectId,
+                platform,
+                period: "monthly",
+                startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                endDate: new Date(),
+                totalPosts: platformSummary.totalPosts.toString(),
+                veryPositiveCount: platformSummary.veryPositiveCount.toString(),
+                positiveCount: platformSummary.positiveCount.toString(),
+                neutralCount: platformSummary.neutralCount.toString(),
+                negativeCount: platformSummary.negativeCount.toString(),
+                veryNegativeCount: platformSummary.veryNegativeCount.toString(),
+                averageSentiment: platformSummary.averageSentiment.toFixed(2),
+                totalEngagement: platformPosts.reduce((sum, p) => sum + parseFloat(p.engagement || "0"), 0).toString(),
+                topKeywords: JSON.stringify(platformSummary.topKeywords),
+                topTopics: JSON.stringify(platformSummary.topTopics),
+              });
+            }
+          }
+          
+          return {
+            success: true,
+            postsCollected: savedPosts.length,
+            analyzed: analyses.length,
+            summary,
+          };
+        } catch (error) {
+          console.error("[Sentiment] Error in collectAndAnalyzeAll:", error);
+          throw new Error(`Erro ao coletar e analisar posts: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
         }
-        
-        return {
-          success: true,
-          postsCollected: savedPosts.length,
-          analyzed: analyses.length,
-          summary,
-        };
       }),
   }),
 
