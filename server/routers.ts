@@ -67,6 +67,12 @@ export const appRouter = router({
         const { id, ...data } = input;
         return db.updateProject(id, data);
       }),
+    delete: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        return db.deleteProject(input.id);
+      }),
   }),
 
   manufacturing: router({

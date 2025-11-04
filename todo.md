@@ -243,3 +243,14 @@
 - [x] Adicionar visualização de correlação entre testes
 - [x] Incluir legenda e cores diferentes para cada teste
 
+
+
+
+### Permitir Exclusão de Projetos
+
+- [x] Adicionar mutation de exclusão de projeto no router tRPC
+- [x] Adicionar botão de exclusão na página de Projetos
+- [x] Implementar dialog de confirmação de exclusão
+- [x] Atualizar lista após exclusão
+- [x] Adicionar validação de permissões
+

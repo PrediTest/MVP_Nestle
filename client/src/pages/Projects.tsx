@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import ProjectDetailsModal from "@/components/ProjectDetailsModal";
@@ -47,6 +47,16 @@ export default function Projects() {
     },
     onError: (error) => {
       toast.error("Erro ao criar projeto: " + error.message);
+    },
+  });
+
+  const deleteProject = trpc.projects.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Projeto excluído com sucesso!");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error("Erro ao excluir projeto: " + error.message);
     },
   });
 
@@ -219,17 +229,27 @@ export default function Projects() {
                       </span>
                     </div>
                     <div className="pt-3 border-t border-border">
-                      <Button 
-                        variant="outline" 
-                        className="w-full" 
-                        size="sm"
-                        onClick={() => {
-                          setSelectedProject(project);
-                          setDetailsOpen(true);
-                        }}
-                      >
-                        Ver Detalhes
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => {
+                            setSelectedProject(project);
+                            setDetailsOpen(true);
+                          }}
+                        >
+                          Ver Detalhes
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => {
+                            if (confirm(`Tem certeza que deseja excluir o projeto "${project.name}"? Esta ação não pode ser desfeita.`)) {
+                              deleteProject.mutate({ id: project.id });
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

@@ -747,3 +747,16 @@ export async function getLatestMonteCarloSimulation(projectId: string) {
   return results.length > 0 ? results[0] : null;
 }
 
+
+
+
+export async function deleteProject(id: string) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+  
+  await db.delete(projects).where(eq(projects.id, id));
+  return { success: true };
+}
+
