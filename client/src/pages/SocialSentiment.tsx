@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -159,7 +160,8 @@ export default function SocialSentiment() {
   );
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <DashboardLayout>
+      <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Análise de Sentimento em Redes Sociais</h1>
@@ -503,7 +505,8 @@ export default function SocialSentiment() {
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }
 

@@ -121,3 +121,11 @@
 - [x] Adicionar ao DashboardLayout
 - [x] Garantir responsividade mobile
 
+
+
+
+### Correção de Layout - Página de Análise de Sentimento
+
+- [x] Verificar se página SocialSentiment.tsx usa DashboardLayout
+- [x] Corrigir layout se necessário
+
