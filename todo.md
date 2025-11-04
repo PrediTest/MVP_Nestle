@@ -93,3 +93,20 @@
 - [x] Criar visualização de tempo médio de resolução
 - [x] Adicionar rota e menu no layout
 
+
+
+
+### Comparação de Tendências de Sentimento entre Produtos
+
+- [x] Criar página de comparação de produtos
+- [x] Implementar seletor múltiplo de projetos (até 6 produtos)
+- [x] Criar gráfico de linha comparativo de sentimento ao longo do tempo
+- [x] Adicionar tabela comparativa de métricas
+- [x] Implementar gráfico de barras comparativo de distribuição de sentimento
+- [x] Criar visualização de palavras-chave mais mencionadas por produto
+- [x] Adicionar gráfico radar multidimensional
+- [x] Implementar filtros por período e plataforma
+- [x] Criar exportação de relatório comparativo (CSV)
+- [x] Adicionar insights automáticos da comparação
+- [x] Adicionar rota e menu no layout
+

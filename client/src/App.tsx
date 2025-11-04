@@ -10,6 +10,7 @@ import SocialSentiment from "./pages/SocialSentiment";
 import AdminMonitoring from "./pages/AdminMonitoring";
 import SentimentAlerts from "./pages/SentimentAlerts";
 import AlertsDashboard from "./pages/AlertsDashboard";
+import ProductComparison from "./pages/ProductComparison";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -21,6 +22,7 @@ function Router() {
       <Route path={"/admin"} component={AdminMonitoring} />
       <Route path={"/alerts"} component={SentimentAlerts} />
       <Route path={"/alerts-dashboard"} component={AlertsDashboard} />
+      <Route path={"/comparison"} component={ProductComparison} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
