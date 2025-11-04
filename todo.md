@@ -179,3 +179,22 @@
 - [x] Incluir badges de desempenho (Excelente, Muito Bom, Bom, Regular, Insuficiente)
 - [x] Atualizar interface com componente de estrelas
 
+
+
+
+### Remover (Aegis) do Nome da Aplicação
+
+- [x] Atualizar variável de ambiente VITE_APP_TITLE (via Settings GUI)
+- [x] Verificar outros locais onde o nome aparece
+
+
+
+
+### Adicionar Novos Produtos ao Banco de Dados
+
+- [x] Inserir Moça Cremosa Premium no banco
+- [x] Inserir Nescafé Espresso Cremoso no banco
+- [x] Inserir Nestlé Iogurte Grego Cremoso no banco
+- [x] Verificar exibição no dashboard
+- [x] Verificar exibição na página de projetos
+
