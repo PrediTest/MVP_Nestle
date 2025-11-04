@@ -110,3 +110,14 @@
 - [x] Adicionar insights automáticos da comparação
 - [x] Adicionar rota e menu no layout
 
+
+
+
+### Barra de Navegação Horizontal
+
+- [x] Criar componente de barra de navegação horizontal
+- [x] Adicionar links para todas as páginas principais
+- [x] Implementar indicador de página ativa
+- [x] Adicionar ao DashboardLayout
+- [x] Garantir responsividade mobile
+
