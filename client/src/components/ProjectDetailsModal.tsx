@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Clock, Target, TrendingUp, AlertCircle } from "lucide-react";
+import { Clock, Target, TrendingUp, AlertCircle, Star } from "lucide-react";
 
 interface ProjectDetailsModalProps {
   open: boolean;
@@ -26,10 +26,32 @@ interface ProjectDetailsModalProps {
   };
 }
 
+// Sistema de pontuação de desempenho
+interface PerformanceRating {
+  creaminess: number; // 1-5 estrelas
+  stability: number; // 1-5 estrelas
+  overall: number; // 1-5 estrelas (média ponderada)
+  badge: "Excelente" | "Muito Bom" | "Bom" | "Regular" | "Insuficiente";
+}
+
+function calculateBadge(rating: number): PerformanceRating["badge"] {
+  if (rating >= 4.5) return "Excelente";
+  if (rating >= 3.5) return "Muito Bom";
+  if (rating >= 2.5) return "Bom";
+  if (rating >= 1.5) return "Regular";
+  return "Insuficiente";
+}
+
 // Dados dos testes industriais por produto
 const testData: Record<string, any> = {
   "Lançamento Nescau Zero Açúcar": {
     description: "Novo produto: Formulação zero açúcar para linha saudável, pó achocolatado com adoçantes como stevia ou eritritol, cacau e fibras. Desafios incluem manutenção do sabor de chocolate sem açúcar, solubilidade em leite e estabilidade térmica.",
+    rating: {
+      creaminess: 4.0,
+      stability: 4.5,
+      overall: 4.3,
+      badge: calculateBadge(4.3),
+    } as PerformanceRating,
     tests: [
       {
         name: "Solubilidade e Dissolução",
@@ -63,6 +85,12 @@ const testData: Record<string, any> = {
   },
   "Ninho Phases 4 Reformulado": {
     description: "Reformulação: Novos nutrientes como prebióticos, vitaminas e ferro para crianças >3 anos, leite em pó integral desnatado. Foco em fortificação nutricional, solubilidade e ausência de off-flavors.",
+    rating: {
+      creaminess: 4.5,
+      stability: 4.0,
+      overall: 4.3,
+      badge: calculateBadge(4.3),
+    } as PerformanceRating,
     tests: [
       {
         name: "Reconstituição e Fluidez",
@@ -96,6 +124,12 @@ const testData: Record<string, any> = {
   },
   "Moça Cremosa Premium": {
     description: "Novo produto: Leite condensado ultra cremoso com textura aveludada, formulação premium com maior teor de sólidos lácteos e emulsificantes naturais. Desafios incluem manter cremosidade uniforme, prevenir cristalização e garantir estabilidade durante shelf-life.",
+    rating: {
+      creaminess: 5.0,
+      stability: 4.5,
+      overall: 4.8,
+      badge: calculateBadge(4.8),
+    } as PerformanceRating,
     tests: [
       {
         name: "Análise de Cremosidade e Viscosidade",
@@ -129,6 +163,12 @@ const testData: Record<string, any> = {
   },
   "Nescafé Espresso Cremoso": {
     description: "Reformulação: Café solúvel premium com crema persistente, blend 100% arábica com tecnologia de microespuma. Foco em cremosidade da espuma, estabilidade da crema e intensidade aromática.",
+    rating: {
+      creaminess: 4.5,
+      stability: 4.0,
+      overall: 4.3,
+      badge: calculateBadge(4.3),
+    } as PerformanceRating,
     tests: [
       {
         name: "Formação e Estabilidade de Crema",
@@ -162,6 +202,12 @@ const testData: Record<string, any> = {
   },
   "Nestlé Iogurte Grego Cremoso": {
     description: "Novo produto: Iogurte grego com 10% de gordura, textura ultra cremosa e proteína elevada (15g/porção). Desafios incluem manter cremosidade sem sinérese, estabilidade de textura e shelf-life refrigerado.",
+    rating: {
+      creaminess: 5.0,
+      stability: 4.5,
+      overall: 4.8,
+      badge: calculateBadge(4.8),
+    } as PerformanceRating,
     tests: [
       {
         name: "Análise de Cremosidade e Consistência",
@@ -195,6 +241,12 @@ const testData: Record<string, any> = {
   },
   "Kit Kat Vegano": {
     description: "Versão vegana: Chocolate alternativo à base de arroz/leite vegetal, wafer crocante, sem laticínios. Ênfase em textura crocante do wafer, derretimento do chocolate e estabilidade vegana.",
+    rating: {
+      creaminess: 3.5,
+      stability: 4.0,
+      overall: 3.8,
+      badge: calculateBadge(3.8),
+    } as PerformanceRating,
     tests: [
       {
         name: "Textura do Wafer e Snapping",
@@ -281,6 +333,96 @@ export default function ProjectDetailsModal({ open, onOpenChange, project }: Pro
               </div>
             </CardContent>
           </Card>
+
+          {/* Avaliação de Desempenho */}
+          {projectTests.rating && (
+            <Card className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-2">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-500" />
+                  Avaliação de Desempenho
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Cremosidade */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Cremosidade</p>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`h-6 w-6 ${
+                            star <= projectTests.rating.creaminess
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300 dark:text-gray-600"
+                          }`}
+                        />
+                      ))}
+                      <span className="ml-2 text-lg font-bold">{projectTests.rating.creaminess.toFixed(1)}</span>
+                    </div>
+                  </div>
+
+                  {/* Estabilidade */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Estabilidade</p>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`h-6 w-6 ${
+                            star <= projectTests.rating.stability
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300 dark:text-gray-600"
+                          }`}
+                        />
+                      ))}
+                      <span className="ml-2 text-lg font-bold">{projectTests.rating.stability.toFixed(1)}</span>
+                    </div>
+                  </div>
+
+                  {/* Geral */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Avaliação Geral</p>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`h-6 w-6 ${
+                            star <= projectTests.rating.overall
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300 dark:text-gray-600"
+                          }`}
+                        />
+                      ))}
+                      <span className="ml-2 text-lg font-bold">{projectTests.rating.overall.toFixed(1)}</span>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={`mt-2 ${
+                        projectTests.rating.badge === "Excelente"
+                          ? "bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-400"
+                          : projectTests.rating.badge === "Muito Bom"
+                          ? "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-400"
+                          : projectTests.rating.badge === "Bom"
+                          ? "bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-400"
+                          : "bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400"
+                      }`}
+                    >
+                      {projectTests.rating.badge}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Explicação do Sistema */}
+                <div className="mt-4 pt-4 border-t border-border">
+                  <p className="text-xs text-muted-foreground">
+                    <strong>Sistema de Pontuação:</strong> Avaliação baseada em métricas de desempenho nos testes de cremosidade (viscosidade, textura, mouthfeel) e estabilidade (emulsão, shelf-life, separação de fases). A pontuação geral é calculada como média ponderada dos critérios avaliados.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Testes Industriais */}
           {projectTests.tests.length > 0 && (

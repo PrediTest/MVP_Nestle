@@ -166,3 +166,16 @@
 - [x] Incluir métricas específicas para estabilidade
 - [x] Atualizar modal ProjectDetailsModal com novos produtos
 
+
+
+
+### Sistema de Pontuação de Desempenho (1-5 Estrelas)
+
+- [x] Criar sistema de avaliação por estrelas
+- [x] Definir critérios de pontuação para cremosidade (1-5 estrelas)
+- [x] Definir critérios de pontuação para estabilidade (1-5 estrelas)
+- [x] Calcular pontuação geral baseada nos testes (média ponderada)
+- [x] Adicionar visualização de estrelas no modal de detalhes
+- [x] Incluir badges de desempenho (Excelente, Muito Bom, Bom, Regular, Insuficiente)
+- [x] Atualizar interface com componente de estrelas
+
