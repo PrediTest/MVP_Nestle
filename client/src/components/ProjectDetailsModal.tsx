@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Clock, Target, TrendingUp, AlertCircle, Star, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import MonteCarloSimulationCard from "@/components/MonteCarloSimulationCard";
 
 interface ProjectDetailsModalProps {
   open: boolean;
@@ -335,6 +336,9 @@ export default function ProjectDetailsModal({ open, onOpenChange, project }: Pro
               </div>
             </CardContent>
           </Card>
+
+          {/* Simulações Monte Carlo */}
+          <MonteCarloSimulationCard projectId={project.id} projectName={project.name} />
 
           {/* Botão Gerenciar Testes */}
           <Card>

@@ -1234,6 +1234,134 @@ export const appRouter = router({
       }),
   }),
 
+  simulations: router({
+    runModel: protectedProcedure
+      .input(
+        z.object({
+          modelType: z.enum(['solubility', 'dissociation', 'texture', 'shelfLife', 'microbial']),
+          parameters: z.record(z.string(), z.number()).optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        const { 
+          solubilityModel, 
+          dissociationModel, 
+          textureModel, 
+          shelfLifeModel, 
+          microbialGrowthModel,
+          generateModelInputs 
+        } = await import('./testModels');
+        
+        const inputs = generateModelInputs(input.modelType);
+        let result;
+        
+        switch (input.modelType) {
+          case 'solubility':
+            result = solubilityModel(inputs);
+            break;
+          case 'dissociation':
+            result = dissociationModel(inputs);
+            break;
+          case 'texture':
+            result = textureModel(inputs);
+            break;
+          case 'shelfLife':
+            result = shelfLifeModel(inputs);
+            break;
+          case 'microbial':
+            result = microbialGrowthModel(inputs);
+            break;
+          default:
+            throw new Error('Modelo não suportado');
+        }
+        
+        return {
+          inputs,
+          ...result,
+        };
+      }),
+    runMonteCarlo: protectedProcedure
+      .input(
+        z.object({
+          modelType: z.enum(['solubility', 'dissociation', 'texture', 'shelfLife', 'microbial']),
+          iterations: z.number().min(100).max(10000).default(1000),
+        })
+      )
+      .query(async ({ input }) => {
+        const { 
+          solubilityModel, 
+          dissociationModel, 
+          textureModel, 
+          shelfLifeModel, 
+          microbialGrowthModel,
+          generateModelInputs,
+          monteCarloSimulation 
+        } = await import('./testModels');
+        
+        const inputs = generateModelInputs(input.modelType);
+        let modelFunction;
+        let baseParams: any[];
+        let paramVariations: Record<number, { min: number; max: number }>;
+        
+        switch (input.modelType) {
+          case 'solubility':
+            modelFunction = solubilityModel;
+            baseParams = [inputs, 2000, 5000, 50];
+            paramVariations = {
+              1: { min: 1500, max: 2500 }, // S0
+              2: { min: 4000, max: 6000 }, // deltaH
+            };
+            break;
+          case 'dissociation':
+            modelFunction = dissociationModel;
+            baseParams = [inputs, 1e-4, 0.01];
+            paramVariations = {
+              1: { min: 5e-5, max: 2e-4 }, // Ka
+            };
+            break;
+          case 'texture':
+            modelFunction = textureModel;
+            baseParams = [inputs, 100, 20, 5];
+            paramVariations = {
+              1: { min: 80, max: 120 }, // sigma0
+              2: { min: 15, max: 25 }, // tau
+            };
+            break;
+          case 'shelfLife':
+            modelFunction = shelfLifeModel;
+            baseParams = [inputs, 1e10, 50000, 0.1];
+            paramVariations = {
+              1: { min: 5e9, max: 2e10 }, // A
+              2: { min: 45000, max: 55000 }, // Ea
+            };
+            break;
+          case 'microbial':
+            modelFunction = microbialGrowthModel;
+            baseParams = [inputs, 100, 0.1, 5, 10];
+            paramVariations = {
+              1: { min: 80, max: 120 }, // N0
+              2: { min: 0.08, max: 0.12 }, // mu
+              3: { min: 4, max: 6 }, // lambda
+            };
+            break;
+          default:
+            throw new Error('Modelo não suportado');
+        }
+        
+        const mcResult = monteCarloSimulation(
+          modelFunction,
+          baseParams,
+          paramVariations,
+          input.iterations
+        );
+        
+        return {
+          inputs,
+          ...mcResult.aggregated,
+          iterations: input.iterations,
+        };
+      }),
+  }),
 
 
 });

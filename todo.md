@@ -254,3 +254,14 @@
 - [x] Atualizar lista após exclusão
 - [x] Adicionar validação de permissões
 
+
+
+
+### Incluir Modelos de Testes e Simulação Monte Carlo nos Cards de Projetos
+
+- [ ] Adicionar modelos computacionais aos testes (Solubilidade, Dissociação, Estabilidade, etc.)
+- [ ] Implementar simulação Monte Carlo para cada tipo de teste
+- [ ] Associar resultados simulados ao card "Testes Industriais" na aba Projetos
+- [ ] Criar visualizações dos resultados da simulação
+- [ ] Adicionar métricas estatísticas (média, desvio padrão, intervalos de confiança)
+
