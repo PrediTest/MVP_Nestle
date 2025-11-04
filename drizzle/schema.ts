@@ -1,4 +1,4 @@
-import { mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, decimal, int, json, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -305,4 +305,75 @@ export const alertConfigurations = mysqlTable("alertConfigurations", {
 
 export type AlertConfiguration = typeof alertConfigurations.$inferSelect;
 export type InsertAlertConfiguration = typeof alertConfigurations.$inferInsert;
+
+
+
+
+// Tabela de testes disponíveis (catálogo)
+export const availableTests = mysqlTable("availableTests", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(), // "cremosidade", "estabilidade", "sensorial", etc.
+  description: text("description"),
+  unit: varchar("unit", { length: 50 }), // unidade de medida
+  minValue: decimal("minValue", { precision: 10, scale: 2 }),
+  maxValue: decimal("maxValue", { precision: 10, scale: 2 }),
+  targetValue: decimal("targetValue", { precision: 10, scale: 2 }),
+  tolerance: decimal("tolerance", { precision: 10, scale: 2 }),
+  duration: int("duration"), // duração em horas
+  cost: decimal("cost", { precision: 10, scale: 2 }),
+  isActive: boolean("isActive").default(true),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+
+// Tabela de testes associados a projetos
+export const projectTests = mysqlTable("projectTests", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  projectId: varchar("projectId", { length: 64 }).notNull(),
+  testId: varchar("testId", { length: 64 }).notNull(),
+  status: mysqlEnum("status", ["pending", "in_progress", "completed", "failed"]).default("pending"),
+  startDate: timestamp("startDate"),
+  endDate: timestamp("endDate"),
+  assignedTo: varchar("assignedTo", { length: 64 }),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "critical"]).default("medium"),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+
+// Tabela de resultados de testes
+export const testResults = mysqlTable("testResults", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  projectTestId: varchar("projectTestId", { length: 64 }).notNull(),
+  measuredValue: decimal("measuredValue", { precision: 10, scale: 4 }),
+  passedCriteria: boolean("passedCriteria"),
+  notes: text("notes"),
+  testedBy: varchar("testedBy", { length: 64 }),
+  testedAt: timestamp("testedAt").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+// Tabela de simulações Monte Carlo
+export const monteCarloSimulations = mysqlTable("monteCarloSimulations", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  projectId: varchar("projectId", { length: 64 }).notNull(),
+  iterations: int("iterations").notNull().default(10000),
+  meanValue: decimal("meanValue", { precision: 10, scale: 4 }),
+  stdDeviation: decimal("stdDeviation", { precision: 10, scale: 4 }),
+  confidenceLevel: decimal("confidenceLevel", { precision: 5, scale: 2 }).default("95.00"),
+  lowerBound: decimal("lowerBound", { precision: 10, scale: 4 }),
+  upperBound: decimal("upperBound", { precision: 10, scale: 4 }),
+  successProbability: decimal("successProbability", { precision: 5, scale: 2 }),
+  distributionData: json("distributionData"), // array de valores para histograma
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type AvailableTest = typeof availableTests.$inferSelect;
+export type InsertAvailableTest = typeof availableTests.$inferInsert;
+export type ProjectTest = typeof projectTests.$inferSelect;
+export type InsertProjectTest = typeof projectTests.$inferInsert;
+export type TestResult = typeof testResults.$inferSelect;
+export type InsertTestResult = typeof testResults.$inferInsert;
+export type MonteCarloSimulation = typeof monteCarloSimulations.$inferSelect;
+export type InsertMonteCarloSimulation = typeof monteCarloSimulations.$inferInsert;
 

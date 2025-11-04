@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, users,
@@ -16,7 +16,11 @@ import {
   InsertMonitoredKeyword, monitoredKeywords,
   InsertMonitoredTopic, monitoredTopics,
   InsertSentimentAlert, sentimentAlerts,
-  InsertAlertConfiguration, alertConfigurations
+  InsertAlertConfiguration, alertConfigurations,
+  InsertAvailableTest, availableTests,
+  InsertProjectTest, projectTests,
+  InsertTestResult, testResults,
+  InsertMonteCarloSimulation, monteCarloSimulations
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -593,5 +597,153 @@ export async function deleteAlertConfiguration(id: string) {
   
   await db.delete(alertConfigurations).where(eq(alertConfigurations.id, id));
   return { success: true };
+}
+
+
+
+
+// ==================== AVAILABLE TESTS ====================
+
+export async function createAvailableTest(test: InsertAvailableTest) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(availableTests).values(test);
+  return test;
+}
+
+export async function getAllAvailableTests() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(availableTests).where(eq(availableTests.isActive, true));
+}
+
+export async function getAvailableTestsByCategory(category: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(availableTests)
+    .where(and(
+      eq(availableTests.category, category),
+      eq(availableTests.isActive, true)
+    ));
+}
+
+export async function updateAvailableTest(id: string, updates: Partial<InsertAvailableTest>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(availableTests).set(updates).where(eq(availableTests.id, id));
+}
+
+export async function deleteAvailableTest(id: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(availableTests).set({ isActive: false }).where(eq(availableTests.id, id));
+}
+
+// ==================== PROJECT TESTS ====================
+
+export async function createProjectTest(projectTest: InsertProjectTest) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(projectTests).values(projectTest);
+  return projectTest;
+}
+
+export async function getProjectTestsByProject(projectId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select({
+    projectTest: projectTests,
+    test: availableTests
+  })
+  .from(projectTests)
+  .leftJoin(availableTests, eq(projectTests.testId, availableTests.id))
+  .where(eq(projectTests.projectId, projectId));
+}
+
+export async function updateProjectTestStatus(id: string, status: "pending" | "in_progress" | "completed" | "failed") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(projectTests).set({ status }).where(eq(projectTests.id, id));
+}
+
+export async function deleteProjectTest(id: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(projectTests).where(eq(projectTests.id, id));
+}
+
+// ==================== TEST RESULTS ====================
+
+export async function createTestResult(result: InsertTestResult) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(testResults).values(result);
+  return result;
+}
+
+export async function getTestResultsByProjectTest(projectTestId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(testResults)
+    .where(eq(testResults.projectTestId, projectTestId))
+    .orderBy(desc(testResults.testedAt));
+}
+
+export async function getTestResultsByProject(projectId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select({
+    result: testResults,
+    projectTest: projectTests,
+    test: availableTests
+  })
+  .from(testResults)
+  .leftJoin(projectTests, eq(testResults.projectTestId, projectTests.id))
+  .leftJoin(availableTests, eq(projectTests.testId, availableTests.id))
+  .where(eq(projectTests.projectId, projectId))
+  .orderBy(desc(testResults.testedAt));
+}
+
+// ==================== MONTE CARLO SIMULATIONS ====================
+
+export async function createMonteCarloSimulation(simulation: InsertMonteCarloSimulation) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(monteCarloSimulations).values(simulation);
+  return simulation;
+}
+
+export async function getMonteCarloSimulationsByProject(projectId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(monteCarloSimulations)
+    .where(eq(monteCarloSimulations.projectId, projectId))
+    .orderBy(desc(monteCarloSimulations.createdAt));
+}
+
+export async function getLatestMonteCarloSimulation(projectId: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const results = await db.select().from(monteCarloSimulations)
+    .where(eq(monteCarloSimulations.projectId, projectId))
+    .orderBy(desc(monteCarloSimulations.createdAt))
+    .limit(1);
+  
+  return results.length > 0 ? results[0] : null;
 }
 

@@ -7,9 +7,11 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { trpc } from "@/lib/trpc";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Clock, Target, TrendingUp, AlertCircle, Star } from "lucide-react";
+import { Clock, Target, TrendingUp, AlertCircle, Star, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ProjectDetailsModalProps {
   open: boolean;
@@ -331,6 +333,25 @@ export default function ProjectDetailsModal({ open, onOpenChange, project }: Pro
                   <p className="font-bold text-green-600">{project.successProbability || "N/A"}%</p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Botão Gerenciar Testes */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Gerenciamento de Testes</CardTitle>
+              <CardDescription>
+                Adicione, remova ou visualize testes para este projeto
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => window.location.href = `/tests/${project.id}`}
+                className="w-full"
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                Gerenciar Testes e Simulações
+              </Button>
             </CardContent>
           </Card>
 

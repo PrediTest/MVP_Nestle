@@ -977,6 +977,259 @@ export const appRouter = router({
         return db.deleteAlertConfiguration(input.id);
       }),
   }),
+
+  // Router de Testes e Simulação Monte Carlo
+  tests: router({
+    // Listar todos os testes disponíveis
+    listAvailable: publicProcedure.query(async () => {
+      const db = await import("./db");
+      return await db.getAllAvailableTests();
+    }),
+
+    // Listar testes por categoria
+    listByCategory: publicProcedure
+      .input(z.object({ category: z.string() }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return await db.getAvailableTestsByCategory(input.category);
+      }),
+
+    // Criar novo teste disponível
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string(),
+        category: z.string(),
+        description: z.string().optional(),
+        unit: z.string().optional(),
+        minValue: z.number().optional(),
+        maxValue: z.number().optional(),
+        targetValue: z.number().optional(),
+        tolerance: z.number().optional(),
+        duration: z.number().optional(),
+        cost: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        const id = `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return await db.createAvailableTest({
+          id,
+          name: input.name,
+          category: input.category,
+          description: input.description,
+          unit: input.unit,
+          minValue: input.minValue?.toString(),
+          maxValue: input.maxValue?.toString(),
+          targetValue: input.targetValue?.toString(),
+          tolerance: input.tolerance?.toString(),
+          duration: input.duration,
+          cost: input.cost?.toString(),
+        });
+      }),
+
+    // Atualizar teste disponível
+    update: protectedProcedure
+      .input(z.object({
+        id: z.string(),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        unit: z.string().optional(),
+        minValue: z.number().optional(),
+        maxValue: z.number().optional(),
+        targetValue: z.number().optional(),
+        tolerance: z.number().optional(),
+        duration: z.number().optional(),
+        cost: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        const { id, ...rest } = input;
+        const updates: any = {};
+        if (rest.name !== undefined) updates.name = rest.name;
+        if (rest.description !== undefined) updates.description = rest.description;
+        if (rest.unit !== undefined) updates.unit = rest.unit;
+        if (rest.minValue !== undefined) updates.minValue = rest.minValue.toString();
+        if (rest.maxValue !== undefined) updates.maxValue = rest.maxValue.toString();
+        if (rest.targetValue !== undefined) updates.targetValue = rest.targetValue.toString();
+        if (rest.tolerance !== undefined) updates.tolerance = rest.tolerance.toString();
+        if (rest.duration !== undefined) updates.duration = rest.duration;
+        if (rest.cost !== undefined) updates.cost = rest.cost.toString();
+        await db.updateAvailableTest(id, updates);
+        return { success: true };
+      }),
+
+    // Deletar teste disponível
+    delete: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        await db.deleteAvailableTest(input.id);
+        return { success: true };
+      }),
+
+    // Adicionar teste a um projeto
+    addToProject: protectedProcedure
+      .input(z.object({
+        projectId: z.string(),
+        testId: z.string(),
+        priority: z.enum(["low", "medium", "high", "critical"]).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        const id = `ptest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return await db.createProjectTest({
+          id,
+          projectId: input.projectId,
+          testId: input.testId,
+          priority: input.priority || "medium",
+          status: "pending",
+        });
+      }),
+
+    // Listar testes de um projeto
+    listByProject: publicProcedure
+      .input(z.object({ projectId: z.string() }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return await db.getProjectTestsByProject(input.projectId);
+      }),
+
+    // Atualizar status de um teste do projeto
+    updateStatus: protectedProcedure
+      .input(z.object({
+        id: z.string(),
+        status: z.enum(["pending", "in_progress", "completed", "failed"]),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        await db.updateProjectTestStatus(input.id, input.status);
+        return { success: true };
+      }),
+
+    // Remover teste de um projeto
+    removeFromProject: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db");
+        await db.deleteProjectTest(input.id);
+        return { success: true };
+      }),
+
+    // Adicionar resultado de teste
+    addResult: protectedProcedure
+      .input(z.object({
+        projectTestId: z.string(),
+        measuredValue: z.number(),
+        passedCriteria: z.boolean(),
+        notes: z.string().optional(),
+        testedBy: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const db = await import("./db");
+        const id = `result_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return await db.createTestResult({
+          id,
+          projectTestId: input.projectTestId,
+          measuredValue: input.measuredValue.toString(),
+          passedCriteria: input.passedCriteria,
+          notes: input.notes,
+          testedBy: input.testedBy || ctx.user?.id,
+        });
+      }),
+
+    // Listar resultados de um teste do projeto
+    getResults: publicProcedure
+      .input(z.object({ projectTestId: z.string() }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return await db.getTestResultsByProjectTest(input.projectTestId);
+      }),
+
+    // Listar todos os resultados de um projeto
+    getAllResults: publicProcedure
+      .input(z.object({ projectId: z.string() }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return await db.getTestResultsByProject(input.projectId);
+      }),
+
+    // Executar simulação de Monte Carlo
+    runSimulation: publicProcedure
+      .input(z.object({
+        projectId: z.string(),
+        iterations: z.number().optional(),
+        confidenceLevel: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { runMultiParameterSimulation } = await import("./monteCarloSimulator");
+        
+        // Buscar testes do projeto
+        const db = await import("./db");
+        const projectTestsData = await db.getProjectTestsByProject(input.projectId);
+        
+        if (projectTestsData.length === 0) {
+          throw new Error("Nenhum teste encontrado para este projeto");
+        }
+        
+        // Preparar parâmetros para simulação
+        const parameters = projectTestsData
+          .filter((pt: any) => pt.test)
+          .map(pt => ({
+            name: pt.test!.name,
+            mean: parseFloat(pt.test!.targetValue || "0"),
+            stdDev: parseFloat(pt.test!.tolerance || "0") / 3, // Aproximação: 3 sigma
+            min: pt.test!.minValue ? parseFloat(pt.test!.minValue) : undefined,
+            max: pt.test!.maxValue ? parseFloat(pt.test!.maxValue) : undefined,
+            targetValue: pt.test!.targetValue ? parseFloat(pt.test!.targetValue) : undefined,
+            tolerance: pt.test!.tolerance ? parseFloat(pt.test!.tolerance) : undefined,
+          }));
+        
+        // Executar simulação
+        const result = runMultiParameterSimulation(
+          parameters,
+          input.iterations || 10000,
+          input.confidenceLevel || 95
+        );
+        
+        // Salvar resultado no banco
+        const simulationId = `sim_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        await db.createMonteCarloSimulation({
+          id: simulationId,
+          projectId: input.projectId,
+          iterations: result.overall.iterations,
+          meanValue: result.overall.meanValue.toString(),
+          stdDeviation: result.overall.stdDeviation.toString(),
+          confidenceLevel: result.overall.confidenceLevel.toString(),
+          lowerBound: result.overall.lowerBound.toString(),
+          upperBound: result.overall.upperBound.toString(),
+          successProbability: result.overall.successProbability.toString(),
+          distributionData: result.overall.distributionData,
+        });
+        
+        return {
+          simulationId,
+          ...result,
+        };
+      }),
+
+    // Listar simulações de um projeto
+    getSimulations: publicProcedure
+      .input(z.object({ projectId: z.string() }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return await db.getMonteCarloSimulationsByProject(input.projectId);
+      }),
+
+    // Obter última simulação de um projeto
+    getLatestSimulation: publicProcedure
+      .input(z.object({ projectId: z.string() }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return await db.getLatestMonteCarloSimulation(input.projectId);
+      }),
+  }),
+
+
+
 });
 
 export type AppRouter = typeof appRouter;

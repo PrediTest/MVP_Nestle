@@ -215,3 +215,21 @@
 - [x] Adicionar verificações de undefined/null
 - [x] Testar página após correção
 
+
+
+
+### Sistema de Gerenciamento de Testes e Simulação Monte Carlo
+
+- [ ] Criar tabela de testes disponíveis no banco de dados
+- [ ] Criar tabela de métricas de avaliação
+- [ ] Implementar router tRPC para gerenciamento de testes
+- [ ] Adicionar botão "Gerenciar Testes" no modal de detalhes
+- [ ] Criar dialog para selecionar testes disponíveis
+- [ ] Criar dialog para cadastrar novos testes
+- [ ] Implementar formulário de cadastro de teste
+- [ ] Adicionar métricas de avaliação (média, desvio padrão, min, max)
+- [ ] Implementar simulação de Monte Carlo
+- [ ] Criar visualização de resultados da simulação
+- [ ] Adicionar gráficos de distribuição de probabilidade
+- [ ] Testar funcionalidade completa
+
