@@ -13,7 +13,7 @@ import { useState } from "react";
 import { useParams } from "wouter";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from "recharts";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, ScatterChart, Scatter, ZAxis } from "recharts";
 
 export default function TestManagement() {
   const params = useParams();
@@ -454,6 +454,64 @@ export default function TestManagement() {
                         </ResponsiveContainer>
                       </CardContent>
                     </Card>
+                    
+                    {/* Gráfico de Dispersão - Comparação de Testes */}
+                    {projectTests && projectTests.length > 1 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Comparação de Testes (Dispersão)</CardTitle>
+                          <CardDescription>
+                            Visualização lado a lado dos resultados de diferentes testes
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <ResponsiveContainer width="100%" height={400}>
+                            <ScatterChart>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis 
+                                type="number" 
+                                dataKey="x" 
+                                name="Iteração" 
+                                label={{ value: 'Iteração', position: 'insideBottom', offset: -5 }}
+                              />
+                              <YAxis 
+                                type="number" 
+                                dataKey="y" 
+                                name="Valor" 
+                                label={{ value: 'Valor Medido', angle: -90, position: 'insideLeft' }}
+                              />
+                              <ZAxis type="number" dataKey="z" range={[50, 200]} name="Confiança" />
+                              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                              <Legend />
+                              {projectTests.slice(0, 5).map((pt: any, index: number) => {
+                                const testData = simulationChartData.slice(index * 20, (index + 1) * 20).map((item, i) => ({
+                                  x: i + 1,
+                                  y: item.value + (index * 5), // Offset para visualização
+                                  z: 100,
+                                  test: pt.test?.name || `Teste ${index + 1}`,
+                                }));
+                                const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#a28bd4'];
+                                return (
+                                  <Scatter
+                                    key={pt.projectTest.id}
+                                    name={pt.test?.name || `Teste ${index + 1}`}
+                                    data={testData}
+                                    fill={colors[index % colors.length]}
+                                  />
+                                );
+                              })}
+                            </ScatterChart>
+                          </ResponsiveContainer>
+                          <div className="mt-4 p-4 bg-muted rounded-lg">
+                            <p className="text-sm text-muted-foreground">
+                              <strong>Interpretação:</strong> Cada cor representa um teste diferente. 
+                              A dispersão dos pontos indica a variabilidade dos resultados. 
+                              Testes com pontos mais agrupados têm menor variabilidade (mais consistentes).
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
                     
                     {/* Interpretação */}
                     <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">

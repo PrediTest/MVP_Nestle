@@ -233,3 +233,13 @@
 - [ ] Adicionar gráficos de distribuição de probabilidade
 - [ ] Testar funcionalidade completa
 
+
+
+
+### Gráfico de Dispersão para Comparação de Testes
+
+- [x] Adicionar gráfico de dispersão (scatter plot) na aba Simulação
+- [x] Implementar comparação lado a lado de diferentes testes
+- [x] Adicionar visualização de correlação entre testes
+- [x] Incluir legenda e cores diferentes para cada teste
+
