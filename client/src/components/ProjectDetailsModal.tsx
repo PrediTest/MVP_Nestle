@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Clock, Target, TrendingUp, AlertCircle, Star, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MonteCarloSimulationCard from "@/components/MonteCarloSimulationCard";
+import TestManagementSection from "@/components/TestManagementSection";
 
 interface ProjectDetailsModalProps {
   open: boolean;
@@ -349,13 +350,7 @@ export default function ProjectDetailsModal({ open, onOpenChange, project }: Pro
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button 
-                onClick={() => window.location.href = `/tests/${project.id}`}
-                className="w-full"
-              >
-                <Settings className="mr-2 h-4 w-4" />
-                Gerenciar Testes e Simulações
-              </Button>
+              <TestManagementSection projectId={project.id} />
             </CardContent>
           </Card>
 

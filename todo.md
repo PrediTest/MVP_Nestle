@@ -265,3 +265,16 @@
 - [ ] Criar visualizações dos resultados da simulação
 - [ ] Adicionar métricas estatísticas (média, desvio padrão, intervalos de confiança)
 
+
+
+
+### Permitir Adicionar/Remover Testes no Gerenciamento
+
+- [x] Criar interface para listar testes associados ao projeto
+- [x] Adicionar botão para remover teste do projeto
+- [x] Criar dialog para adicionar teste existente do catálogo
+- [x] Implementar mutation para associar teste ao projeto
+- [x] Implementar mutation para desassociar teste do projeto
+- [x] Atualizar lista após adicionar/remover
+- [x] Adicionar confirmação antes de remover
+
