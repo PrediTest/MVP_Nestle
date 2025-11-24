@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, name, companyId FROM projects WHERE companyId = 'unilever_brasil';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2AuGb6MUvfAYuNE.root --database CzSfK6KNPiZZKvnoesTzmB --execute SELECT id, name, companyId FROM projects WHERE companyId = 'unilever_brasil';",
+  "rows": [
+    {
+      "id": "proj_unilever_1",
+      "name": "Hellmann's Vegana",
+      "companyId": "unilever_brasil"
+    },
+    {
+      "id": "proj_unilever_2",
+      "name": "Omo Líquido Concentrado",
+      "companyId": "unilever_brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcompanyId\nproj_unilever_1\tHellmann's Vegana\tunilever_brasil\nproj_unilever_2\tOmo Líquido Concentrado\tunilever_brasil\n",
+  "stderr": "",
+  "execution_time_ms": 48
+}

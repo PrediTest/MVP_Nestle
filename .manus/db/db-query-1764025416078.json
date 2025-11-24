@@ -1,0 +1,26 @@
+{
+  "query": "SELECT companyId, COUNT(*) as total FROM projects GROUP BY companyId;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2AuGb6MUvfAYuNE.root --database CzSfK6KNPiZZKvnoesTzmB --execute SELECT companyId, COUNT(*) as total FROM projects GROUP BY companyId;",
+  "rows": [
+    {
+      "companyId": "",
+      "total": "8"
+    },
+    {
+      "companyId": "brf_brasil",
+      "total": "2"
+    },
+    {
+      "companyId": "nestle_brasil",
+      "total": "2"
+    },
+    {
+      "companyId": "unilever_brasil",
+      "total": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "companyId\ttotal\n\t8\nbrf_brasil\t2\nnestle_brasil\t2\nunilever_brasil\t2\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

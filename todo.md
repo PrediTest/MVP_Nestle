@@ -370,3 +370,16 @@
 - [ ] Criar guia de migração de dados
 - [ ] Atualizar README com informações de multi-tenancy
 
+
+
+
+### Migração Completa de Multi-Tenancy
+
+- [x] Criar script SQL para adicionar companyId em todas as 18 tabelas
+- [x] Executar migração no banco de dados
+- [x] Atualizar dados existentes com companyId padrão
+- [x] Popular banco com seed completo (3 empresas)
+- [x] Validar isolamento de dados entre empresas
+- [x] Testar queries de listagem por empresa
+- [ ] Documentar processo de migração
+
