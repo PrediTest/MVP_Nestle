@@ -4,7 +4,7 @@
  */
 
 export interface SocialMediaPost {
-  platform: "instagram" | "facebook" | "tiktok" | "twitter" | "reclameaqui" | "nestle_site";
+  platform: "instagram" | "facebook" | "tiktok" | "twitter" | "reclameaqui" | "company_site";
   postId: string;
   author: string;
   content: string;
@@ -108,7 +108,7 @@ export async function collectNestleSiteComments(
   
   console.log(`[NestleSite] Collecting comments from ${productUrl}`);
   
-  return generateMockPosts("nestle_site", productUrl, ["comentário"], limit);
+  return generateMockPosts("company_site", productUrl, ["comentário"], limit);
 }
 
 /**

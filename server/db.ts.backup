@@ -22,7 +22,6 @@ import {
   InsertTestResult, testResults,
   InsertMonteCarloSimulation, monteCarloSimulations
 } from "../drizzle/schema";
-import { Company, InsertCompany, companies } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -107,36 +106,6 @@ export async function getUser(id: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-
-// ============ COMPANIES (MULTI-TENANCY) ============
-export async function createCompany(company: InsertCompany) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.insert(companies).values(company);
-  return company;
-}
-
-export async function getCompanyById(id: string) {
-  const db = await getDb();
-  if (!db) return undefined;
-  const result = await db.select().from(companies).where(eq(companies.id, id)).limit(1);
-  return result[0];
-}
-
-export async function getAllCompanies() {
-  const db = await getDb();
-  if (!db) return [];
-  return db.select().from(companies).where(eq(companies.isActive, true));
-}
-
-export async function updateCompany(id: string, data: Partial<InsertCompany>) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.update(companies).set({ ...data, updatedAt: new Date() }).where(eq(companies.id, id));
-}
-
-
-
 // ============ PROJECTS ============
 export async function createProject(project: InsertProject) {
   const db = await getDb();
@@ -198,7 +167,7 @@ export async function getAllStandards() {
   return db.select().from(standards);
 }
 
-export async function getStandardsByType(type: "company" | "iso" | "fda" | "other" | "anvisa" | "mapa") {
+export async function getStandardsByType(type: "nestle" | "iso" | "fda" | "other") {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(standards).where(eq(standards.type, type));

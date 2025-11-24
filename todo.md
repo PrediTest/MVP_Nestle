@@ -304,3 +304,69 @@
 - [x] Documentar APIs e integrações
 - [x] Gerar PDF do documento técnico
 
+
+
+
+### Implementar Multi-Tenancy com Isolamento de Dados
+
+#### Fase 1: Schema e Infraestrutura
+- [x] Criar tabela `companies` no schema do banco de dados
+- [x] Adicionar campo `companyId` em todas as 18 tabelas existentes
+- [x] Atualizar migrações do banco de dados
+- [x] Criar helper functions de multi-tenancy (multiTenancy.ts)
+- [x] Implementar funções de gerenciamento de companies no db.ts
+
+#### Fase 2: Atualização dos Routers tRPC
+- [x] Atualizar router de Projects (list, create, update, delete)
+- [x] Atualizar router de Manufacturing Data
+- [x] Atualizar router de Standards
+- [x] Atualizar router de Complaints
+- [x] Atualizar router de Predictions
+- [x] Atualizar router de Alerts
+- [x] Atualizar router de Reports
+- [x] Atualizar router de Social Media Accounts
+- [x] Atualizar router de Social Media Posts
+- [x] Atualizar router de Sentiment Analysis
+- [x] Atualizar router de Sentiment Summary
+- [x] Atualizar router de Monitored Keywords
+- [x] Atualizar router de Monitored Topics
+- [x] Atualizar router de Sentiment Alerts
+- [x] Atualizar router de Alert Configurations
+- [x] Atualizar router de Available Tests
+- [x] Atualizar router de Project Tests
+- [x] Atualizar router de Test Results
+- [x] Atualizar router de Monte Carlo Simulations
+
+#### Fase 3: Funções de Banco de Dados
+- [ ] Atualizar todas as funções get* para filtrar por companyId
+- [ ] Atualizar todas as funções create* para incluir companyId
+- [ ] Atualizar todas as funções update* para validar companyId
+- [ ] Atualizar todas as funções delete* para validar companyId
+
+#### Fase 4: Seed e Dados de Teste
+- [x] Criar seed com 3 empresas (Nestlé, Unilever, BRF)
+- [ ] Criar projetos para cada empresa (requer migração de companyId)
+- [ ] Criar dados de manufatura por empresa
+- [ ] Criar standards por empresa
+- [ ] Criar testes disponíveis por empresa
+
+#### Fase 5: Testes de Isolamento
+- [ ] Criar testes de isolamento para Projects
+- [ ] Criar testes de isolamento para Manufacturing Data
+- [ ] Criar testes de isolamento para Sentiment Analysis
+- [ ] Criar testes de isolamento para Tests e Simulations
+- [ ] Validar que Empresa A não acessa dados da Empresa B
+- [ ] Testar CRUD completo por empresa
+
+#### Fase 6: Frontend e UX
+- [ ] Adicionar seletor de empresa no frontend
+- [ ] Atualizar contexto de autenticação com companyId
+- [ ] Implementar white-label UI (logo, cores por empresa)
+- [ ] Adicionar página de gerenciamento de empresas
+
+#### Fase 7: Documentação
+- [ ] Documentar arquitetura multi-tenant
+- [ ] Documentar processo de onboarding de novas empresas
+- [ ] Criar guia de migração de dados
+- [ ] Atualizar README com informações de multi-tenancy
+

@@ -48,6 +48,7 @@ export const appRouter = router({
         const db = await import("./db");
         return db.createProject({
           ...input,
+          companyId: ctx.user!.companyId || "default_company",
           createdBy: ctx.user.id,
         });
       }),
@@ -62,14 +63,14 @@ export const appRouter = router({
           successProbability: z.string().optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         const { id, ...data } = input;
         return db.updateProject(id, data);
       }),
     delete: protectedProcedure
       .input(z.object({ id: z.string() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         return db.deleteProject(input.id);
       }),
@@ -94,9 +95,12 @@ export const appRouter = router({
           throughput: z.string().optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
-        return db.createManufacturingData(input);
+        return db.createManufacturingData({
+          ...input,
+          companyId: ctx.user!.companyId || "default_company",
+        });
       }),
   }),
 
@@ -106,7 +110,7 @@ export const appRouter = router({
       return db.getAllStandards();
     }),
     listByType: protectedProcedure
-      .input(z.object({ type: z.enum(["nestle", "iso", "fda", "other"]) }))
+      .input(z.object({ type: z.enum(["company", "iso", "fda", "other", "anvisa", "mapa"]) }))
       .query(async ({ input }) => {
         const db = await import("./db");
         return db.getStandardsByType(input.type);
@@ -118,16 +122,19 @@ export const appRouter = router({
           code: z.string(),
           title: z.string(),
           description: z.string().optional(),
-          type: z.enum(["nestle", "iso", "fda", "other"]),
+          type: z.enum(["company", "iso", "fda", "other", "anvisa", "mapa"]),
           category: z.string().optional(),
           content: z.string().optional(),
           version: z.string().optional(),
           effectiveDate: z.date().optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
-        return db.createStandard(input);
+        return db.createStandard({
+          ...input,
+          companyId: ctx.user!.companyId || "default_company",
+        });
       }),
   }),
 
@@ -154,9 +161,12 @@ export const appRouter = router({
           reportedAt: z.date().optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
-        return db.createComplaint(input);
+        return db.createComplaint({
+          ...input,
+          companyId: ctx.user!.companyId || "default_company",
+        });
       }),
   }),
 
@@ -179,13 +189,16 @@ export const appRouter = router({
           metrics: z.string().optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
-        return db.createPrediction(input);
+        return db.createPrediction({
+          ...input,
+          companyId: ctx.user!.companyId || "default_company",
+        });
       }),
     generatePrediction: protectedProcedure
       .input(z.object({ projectId: z.string() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         // Simulação de predição com ML
         const riskScore = Math.floor(Math.random() * 100).toString();
         const successProbability = (100 - parseInt(riskScore)).toString();
@@ -213,6 +226,7 @@ export const appRouter = router({
         const db = await import("./db");
         return db.createPrediction({
           id: `pred_${Date.now()}`,
+          companyId: ctx.user!.companyId || "default_company",
           projectId: input.projectId,
           modelVersion: "v1.0.0",
           riskScore,
@@ -245,9 +259,12 @@ export const appRouter = router({
           message: z.string().optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
-        return db.createAlert(input);
+        return db.createAlert({
+          ...input,
+          companyId: ctx.user!.companyId || "default_company",
+        });
       }),
     acknowledge: protectedProcedure
       .input(z.object({ id: z.string() }))
@@ -282,6 +299,7 @@ export const appRouter = router({
         const db = await import("./db");
         return db.createReport({
           ...input,
+          companyId: ctx.user!.companyId || "default_company",
           generatedBy: ctx.user.id,
         });
       }),
@@ -300,15 +318,16 @@ export const appRouter = router({
       .input(
         z.object({
           id: z.string(),
-          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site"]),
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "company_site"]),
           accountName: z.string(),
           accountUrl: z.string().optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         return db.createSocialMediaAccount({
           ...input,
+          companyId: ctx.user!.companyId || "default_company",
           isActive: "yes",
         });
       }),
@@ -318,13 +337,13 @@ export const appRouter = router({
       .input(
         z.object({
           projectId: z.string(),
-          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site"]),
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "company_site"]),
           accountName: z.string(),
           keywords: z.array(z.string()),
           limit: z.number().default(50),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const socialMedia = await import("./socialMediaIntegration");
         const db = await import("./db");
         
@@ -347,7 +366,7 @@ export const appRouter = router({
           case "reclameaqui":
             posts = await socialMedia.collectReclameAquiComplaints(input.accountName, input.limit);
             break;
-          case "nestle_site":
+          case "company_site":
             posts = await socialMedia.collectNestleSiteComments(input.accountName, input.limit);
             break;
         }
@@ -358,7 +377,8 @@ export const appRouter = router({
           const engagement = socialMedia.calculateEngagement(post);
           const saved = await db.createSocialMediaPost({
             id: post.postId,
-            accountId: input.accountName,
+            companyId: ctx.user!.companyId || "default_company",
+              accountId: input.accountName,
             projectId: input.projectId,
             platform: input.platform,
             postId: post.postId,
@@ -389,7 +409,7 @@ export const appRouter = router({
           postIds: z.array(z.string()).optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         const analyzer = await import("./sentimentAnalyzer");
         
@@ -413,7 +433,8 @@ export const appRouter = router({
           
           const saved = await db.createSentimentAnalysis({
             id: `sentiment_${post.id}_${Date.now()}`,
-            postId: post.id,
+            companyId: ctx.user!.companyId || "default_company",
+              postId: post.id,
             projectId: input.projectId,
             sentiment: analysis.sentiment,
             sentimentScore: analysis.sentimentScore.toString(),
@@ -489,7 +510,7 @@ export const appRouter = router({
     getPostsByPlatform: protectedProcedure
       .input(
         z.object({
-          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site"]),
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "company_site"]),
         })
       )
       .query(async ({ input }) => {
@@ -513,7 +534,7 @@ export const appRouter = router({
           limit: z.number().default(50),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         try {
           const socialMedia = await import("./socialMediaIntegration");
           const db = await import("./db");
@@ -528,6 +549,7 @@ export const appRouter = router({
             const engagement = socialMedia.calculateEngagement(post);
             const saved = await db.createSocialMediaPost({
               id: post.postId,
+              companyId: ctx.user!.companyId || "default_company",
               accountId: post.author,
               projectId: input.projectId,
               platform: post.platform,
@@ -551,6 +573,7 @@ export const appRouter = router({
             
             const saved = await db.createSentimentAnalysis({
               id: `sentiment_${post.id}_${Date.now()}`,
+              companyId: ctx.user!.companyId || "default_company",
               postId: post.id,
               projectId: input.projectId,
               sentiment: analysis.sentiment,
@@ -580,7 +603,7 @@ export const appRouter = router({
           );
           
           // Salvar resumo no banco
-          const platforms = ["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site"] as const;
+          const platforms = ["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "company_site"] as const;
           for (const platform of platforms) {
             const platformPosts = savedPosts.filter(p => p.platform === platform);
             if (platformPosts.length > 0) {
@@ -602,7 +625,8 @@ export const appRouter = router({
               
               await db.createSentimentSummary({
                 id: `summary_${input.projectId}_${platform}_${Date.now()}`,
-                projectId: input.projectId,
+                companyId: ctx.user!.companyId || "default_company",
+        projectId: input.projectId,
                 platform,
                 period: "monthly",
                 startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -653,7 +677,7 @@ export const appRouter = router({
           id: z.string(),
           projectId: z.string().optional(),
           keyword: z.string(),
-          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).default("all"),
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "company_site", "all"]).default("all"),
           category: z.string().optional(),
           priority: z.enum(["low", "medium", "high"]).default("medium"),
         })
@@ -662,6 +686,7 @@ export const appRouter = router({
         const db = await import("./db");
         return db.createMonitoredKeyword({
           ...input,
+          companyId: ctx.user!.companyId || "default_company",
           isActive: "yes",
           createdBy: ctx.user.id,
         });
@@ -673,13 +698,13 @@ export const appRouter = router({
         z.object({
           id: z.string(),
           keyword: z.string().optional(),
-          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).optional(),
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "company_site", "all"]).optional(),
           isActive: z.enum(["yes", "no"]).optional(),
           category: z.string().optional(),
           priority: z.enum(["low", "medium", "high"]).optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         const { id, ...data } = input;
         return db.updateMonitoredKeyword(id, data);
@@ -688,7 +713,7 @@ export const appRouter = router({
     // Deletar keyword
     deleteKeyword: protectedProcedure
       .input(z.object({ id: z.string() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         return db.deleteMonitoredKeyword(input.id);
       }),
@@ -712,7 +737,7 @@ export const appRouter = router({
           topic: z.string(),
           description: z.string().optional(),
           keywords: z.array(z.string()).optional(),
-          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).default("all"),
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "company_site", "all"]).default("all"),
           priority: z.enum(["low", "medium", "high"]).default("medium"),
         })
       )
@@ -721,6 +746,7 @@ export const appRouter = router({
         const { keywords, ...rest } = input;
         return db.createMonitoredTopic({
           ...rest,
+          companyId: ctx.user!.companyId || "default_company",
           keywords: keywords ? JSON.stringify(keywords) : null,
           isActive: "yes",
           createdBy: ctx.user.id,
@@ -735,12 +761,12 @@ export const appRouter = router({
           topic: z.string().optional(),
           description: z.string().optional(),
           keywords: z.array(z.string()).optional(),
-          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).optional(),
+          platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "company_site", "all"]).optional(),
           isActive: z.enum(["yes", "no"]).optional(),
           priority: z.enum(["low", "medium", "high"]).optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         const { id, keywords, ...data } = input;
         return db.updateMonitoredTopic(id, {
@@ -752,7 +778,7 @@ export const appRouter = router({
     // Deletar topic
     deleteTopic: protectedProcedure
       .input(z.object({ id: z.string() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         return db.deleteMonitoredTopic(input.id);
       }),
@@ -776,7 +802,7 @@ export const appRouter = router({
       .input(z.object({
         id: z.string(),
         projectId: z.string(),
-        platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).optional(),
+        platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "company_site", "all"]).optional(),
         alertType: z.enum(["negative_spike", "very_negative_spike", "negative_threshold", "sentiment_drop"]),
         severity: z.enum(["low", "medium", "high", "critical"]).default("medium"),
         currentValue: z.string().optional(),
@@ -784,10 +810,11 @@ export const appRouter = router({
         affectedPosts: z.string().optional(),
         message: z.string(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         return db.createSentimentAlert({
           ...input,
+          companyId: ctx.user!.companyId || "default_company",
           status: "active",
           notificationSent: "no",
         });
@@ -804,7 +831,7 @@ export const appRouter = router({
     // Resolver alerta
     resolve: protectedProcedure
       .input(z.object({ id: z.string() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         return db.resolveSentimentAlert(input.id);
       }),
@@ -812,7 +839,7 @@ export const appRouter = router({
     // Verificar e criar alertas automaticamente
     checkAndCreateAlerts: protectedProcedure
       .input(z.object({ projectId: z.string() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         const alertService = await import("./sentimentAlertService");
         
@@ -889,7 +916,8 @@ export const appRouter = router({
           const alertId = `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
           const alert = await db.createSentimentAlert({
             id: alertId,
-            projectId: input.projectId,
+            companyId: ctx.user!.companyId || "default_company",
+        projectId: input.projectId,
             platform: config.platform,
             alertType: alertResult.alertType!,
             severity: alertResult.severity!,
@@ -940,7 +968,7 @@ export const appRouter = router({
       .input(z.object({
         id: z.string(),
         projectId: z.string().optional(),
-        platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "nestle_site", "all"]).default("all"),
+        platform: z.enum(["instagram", "facebook", "tiktok", "twitter", "reclameaqui", "company_site", "all"]).default("all"),
         negativeThreshold: z.string().default("30"),
         veryNegativeThreshold: z.string().default("15"),
         sentimentDropThreshold: z.string().default("20"),
@@ -952,6 +980,7 @@ export const appRouter = router({
         const db = await import("./db");
         return db.createAlertConfiguration({
           ...input,
+          companyId: ctx.user!.companyId || "default_company",
           isActive: "yes",
           createdBy: ctx.user.id,
         });
@@ -969,7 +998,7 @@ export const appRouter = router({
         isActive: z.enum(["yes", "no"]).optional(),
         notifyOwner: z.enum(["yes", "no"]).optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         const { id, ...data } = input;
         return db.updateAlertConfiguration(id, data);
@@ -978,7 +1007,7 @@ export const appRouter = router({
     // Deletar configuração de alerta
     deleteConfiguration: protectedProcedure
       .input(z.object({ id: z.string() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         return db.deleteAlertConfiguration(input.id);
       }),
@@ -1014,11 +1043,12 @@ export const appRouter = router({
         duration: z.number().optional(),
         cost: z.number().optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         const id = `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         return await db.createAvailableTest({
           id,
+          companyId: ctx.user!.companyId || "default_company",
           name: input.name,
           category: input.category,
           description: input.description,
@@ -1046,7 +1076,7 @@ export const appRouter = router({
         duration: z.number().optional(),
         cost: z.number().optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         const { id, ...rest } = input;
         const updates: any = {};
@@ -1066,7 +1096,7 @@ export const appRouter = router({
     // Deletar teste disponível
     delete: protectedProcedure
       .input(z.object({ id: z.string() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         await db.deleteAvailableTest(input.id);
         return { success: true };
@@ -1079,11 +1109,12 @@ export const appRouter = router({
         testId: z.string(),
         priority: z.enum(["low", "medium", "high", "critical"]).optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         const id = `ptest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         return await db.createProjectTest({
           id,
+          companyId: ctx.user!.companyId || "default_company",
           projectId: input.projectId,
           testId: input.testId,
           priority: input.priority || "medium",
@@ -1105,7 +1136,7 @@ export const appRouter = router({
         id: z.string(),
         status: z.enum(["pending", "in_progress", "completed", "failed"]),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         await db.updateProjectTestStatus(input.id, input.status);
         return { success: true };
@@ -1114,7 +1145,7 @@ export const appRouter = router({
     // Remover teste de um projeto
     removeFromProject: protectedProcedure
       .input(z.object({ id: z.string() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         await db.deleteProjectTest(input.id);
         return { success: true };
@@ -1134,6 +1165,7 @@ export const appRouter = router({
         const id = `result_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         return await db.createTestResult({
           id,
+          companyId: ctx.user!.companyId || "default_company",
           projectTestId: input.projectTestId,
           measuredValue: input.measuredValue.toString(),
           passedCriteria: input.passedCriteria,
@@ -1165,7 +1197,7 @@ export const appRouter = router({
         iterations: z.number().optional(),
         confidenceLevel: z.number().optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const { runMultiParameterSimulation } = await import("./monteCarloSimulator");
         
         // Buscar testes do projeto
@@ -1200,6 +1232,7 @@ export const appRouter = router({
         const simulationId = `sim_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         await db.createMonteCarloSimulation({
           id: simulationId,
+          companyId: ctx.user!.companyId || "default_company",
           projectId: input.projectId,
           iterations: result.overall.iterations,
           meanValue: result.overall.meanValue.toString(),

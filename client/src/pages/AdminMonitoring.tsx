@@ -136,11 +136,7 @@ function KeywordsManagement() {
                       {getPriorityLabel(keyword.priority)}
                     </Badge>
                   </div>
-                  {keyword.category && (
-                    <p className="text-sm text-muted-foreground">
-                      Categoria: {keyword.category}
-                    </p>
-                  )}
+
                   {keyword.projectId && (
                     <p className="text-sm text-muted-foreground">
                       Projeto: {projects?.find((p) => p.id === keyword.projectId)?.name || keyword.projectId}
