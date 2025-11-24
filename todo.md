@@ -423,16 +423,16 @@
 
 
 
-### Vulnerabilidades de Segurança Encontradas pelos Testes
+### Vulnerabilidades de Segurança Encontradas pelos Testes (CORRIGIDAS ✅)
 
-- [ ] **tests.listByProject** não filtra por companyId - usuários podem listar testes de projetos de outras empresas
-- [ ] **tests.addToProject** não valida se projeto pertence à empresa antes de adicionar teste
-- [ ] **tests.addResult** não valida se projectTest pertence à empresa antes de adicionar resultado
-- [ ] **tests.updateProjectTest** não valida companyId antes de atualizar
-- [ ] **tests.deleteProjectTest** não valida companyId antes de deletar
-- [ ] Adicionar filtro de companyId em **getProjectTestsByProject** no db.ts
-- [ ] Adicionar validação de companyId em **createProjectTest** no db.ts
-- [ ] Adicionar validação de companyId em **createTestResult** no db.ts
-- [ ] Adicionar validação de companyId em **updateProjectTestStatus** no db.ts
-- [ ] Adicionar validação de companyId em **deleteProjectTest** no db.ts
+- [x] **tests.listByProject** não filtra por companyId - usuários podem listar testes de projetos de outras empresas
+- [x] **tests.addToProject** não valida se projeto pertence à empresa antes de adicionar teste
+- [x] **tests.addResult** não valida se projectTest pertence à empresa antes de adicionar resultado
+- [x] **tests.updateProjectTest** não valida companyId antes de atualizar
+- [x] **tests.deleteProjectTest** não valida companyId antes de deletar
+- [x] Adicionar filtro de companyId em **getProjectTestsByProject** no db.ts
+- [x] Adicionar validação de companyId em **createProjectTest** no db.ts
+- [x] Adicionar validação de companyId em **createTestResult** no db.ts
+- [x] Adicionar validação de companyId em **updateProjectTestStatus** no db.ts
+- [x] Adicionar validação de companyId em **deleteProjectTest** no db.ts
 

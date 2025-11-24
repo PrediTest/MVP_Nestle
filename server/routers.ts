@@ -1152,11 +1152,11 @@ export const appRouter = router({
       }),
 
     // Listar testes de um projeto
-    listByProject: publicProcedure
+    listByProject: protectedProcedure
       .input(z.object({ projectId: z.string() }))
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
         const db = await import("./db");
-        return await db.getProjectTestsByProject(input.projectId);
+        return await db.getProjectTestsByProject(input.projectId, ctx.user!.companyId || "default_company");
       }),
 
     // Atualizar status de um teste do projeto
@@ -1167,7 +1167,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
-        await db.updateProjectTestStatus(input.id, input.status);
+        await db.updateProjectTestStatus(input.id, input.status, ctx.user!.companyId || "default_company");
         return { success: true };
       }),
 
@@ -1176,7 +1176,7 @@ export const appRouter = router({
       .input(z.object({ id: z.string() }))
       .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
-        await db.deleteProjectTest(input.id);
+        await db.deleteProjectTest(input.id, ctx.user!.companyId || "default_company");
         return { success: true };
       }),
 
@@ -1231,7 +1231,7 @@ export const appRouter = router({
         
         // Buscar testes do projeto
         const db = await import("./db");
-        const projectTestsData = await db.getProjectTestsByProject(input.projectId);
+        const projectTestsData = await db.getProjectTestsByProject(input.projectId, ctx.user!.companyId || "default_company");
         
         if (projectTestsData.length === 0) {
           throw new Error("Nenhum teste encontrado para este projeto");

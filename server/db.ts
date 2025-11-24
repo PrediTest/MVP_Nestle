@@ -699,13 +699,47 @@ export async function createProjectTest(projectTest: InsertProjectTest) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
+  // Validar que o projeto pertence à empresa
+  if (projectTest.companyId && projectTest.projectId) {
+    const project = await db.select().from(projects)
+      .where(and(
+        eq(projects.id, projectTest.projectId),
+        eq(projects.companyId, projectTest.companyId)
+      ))
+      .limit(1);
+    
+    if (project.length === 0) {
+      throw new Error("Projeto não encontrado ou não pertence à empresa");
+    }
+  }
+  
   await db.insert(projectTests).values(projectTest);
   return projectTest;
 }
 
-export async function getProjectTestsByProject(projectId: string) {
+export async function getProjectTestsByProject(projectId: string, companyId?: string) {
   const db = await getDb();
   if (!db) return [];
+  
+  // Validar que o projeto pertence à empresa antes de listar testes
+  if (companyId) {
+    const project = await db.select().from(projects)
+      .where(and(
+        eq(projects.id, projectId),
+        eq(projects.companyId, companyId)
+      ))
+      .limit(1);
+    
+    if (project.length === 0) {
+      // Projeto não pertence à empresa, retornar array vazio
+      return [];
+    }
+  }
+  
+  const conditions = [eq(projectTests.projectId, projectId)];
+  if (companyId) {
+    conditions.push(eq(projectTests.companyId, companyId));
+  }
   
   return await db.select({
     projectTest: projectTests,
@@ -713,19 +747,47 @@ export async function getProjectTestsByProject(projectId: string) {
   })
   .from(projectTests)
   .leftJoin(availableTests, eq(projectTests.testId, availableTests.id))
-  .where(eq(projectTests.projectId, projectId));
+  .where(and(...conditions));
 }
 
-export async function updateProjectTestStatus(id: string, status: "pending" | "in_progress" | "completed" | "failed") {
+export async function updateProjectTestStatus(id: string, status: "pending" | "in_progress" | "completed" | "failed", companyId?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  
+  // Validar que o projectTest pertence à empresa antes de atualizar
+  if (companyId) {
+    const projectTest = await db.select().from(projectTests)
+      .where(and(
+        eq(projectTests.id, id),
+        eq(projectTests.companyId, companyId)
+      ))
+      .limit(1);
+    
+    if (projectTest.length === 0) {
+      throw new Error("Teste de projeto não encontrado ou não pertence à empresa");
+    }
+  }
   
   await db.update(projectTests).set({ status }).where(eq(projectTests.id, id));
 }
 
-export async function deleteProjectTest(id: string) {
+export async function deleteProjectTest(id: string, companyId?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  
+  // Validar que o projectTest pertence à empresa antes de deletar
+  if (companyId) {
+    const projectTest = await db.select().from(projectTests)
+      .where(and(
+        eq(projectTests.id, id),
+        eq(projectTests.companyId, companyId)
+      ))
+      .limit(1);
+    
+    if (projectTest.length === 0) {
+      throw new Error("Teste de projeto não encontrado ou não pertence à empresa");
+    }
+  }
   
   await db.delete(projectTests).where(eq(projectTests.id, id));
 }
@@ -735,6 +797,20 @@ export async function deleteProjectTest(id: string) {
 export async function createTestResult(result: InsertTestResult) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  
+  // Validar que o projectTest pertence à empresa
+  if (result.companyId && result.projectTestId) {
+    const projectTest = await db.select().from(projectTests)
+      .where(and(
+        eq(projectTests.id, result.projectTestId),
+        eq(projectTests.companyId, result.companyId)
+      ))
+      .limit(1);
+    
+    if (projectTest.length === 0) {
+      throw new Error("Teste de projeto não encontrado ou não pertence à empresa");
+    }
+  }
   
   await db.insert(testResults).values(result);
   return result;
