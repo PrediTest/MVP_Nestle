@@ -383,3 +383,19 @@
 - [x] Testar queries de listagem por empresa
 - [ ] Documentar processo de migração
 
+
+
+
+### Implementar White-Label UI
+
+- [x] Criar router tRPC para buscar dados da empresa (companies.getByUser)
+- [x] Criar contexto React CompanyContext para gerenciar empresa atual
+- [x] Atualizar DashboardLayout para usar logo dinâmico
+- [x] Aplicar cores primárias da empresa no tema CSS
+- [x] Atualizar título da aplicação com nome da empresa
+- [x] Implementar seletor de empresa no header (dropdown)
+- [x] Persistir empresa selecionada no localStorage
+- [x] Atualizar todos os dados ao trocar de empresa
+- [x] Testar white-label com Nestlé, Unilever e BRF
+- [x] Adicionar fallback para usuários sem empresa
+

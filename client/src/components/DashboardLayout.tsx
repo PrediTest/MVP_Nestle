@@ -20,6 +20,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
+import { useCompany } from "@/contexts/CompanyContext";
+import { CompanySelector } from "./CompanySelector";
 import { useIsMobile } from "@/hooks/useMobile";
 import { LayoutDashboard, LogOut, PanelLeft, Users, MessageCircle, Settings, Bell, BarChart3, GitCompare } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
@@ -121,6 +123,11 @@ function DashboardLayoutContent({
   setSidebarWidth,
 }: DashboardLayoutContentProps) {
   const { user, logout } = useAuth();
+  const { company } = useCompany();
+  
+  // Usar logo e nome da empresa se disponível
+  const displayLogo = company?.logo || APP_LOGO;
+  const displayName = company?.name || APP_TITLE;
   const [location, setLocation] = useLocation();
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
@@ -178,9 +185,9 @@ function DashboardLayoutContent({
               {isCollapsed ? (
                 <div className="relative h-8 w-8 shrink-0 group">
                   <img
-                    src={APP_LOGO}
+                    src={displayLogo}
                     className="h-8 w-8 rounded-md object-cover ring-1 ring-border"
-                    alt="Logo"
+                    alt={displayName}
                   />
                   <button
                     onClick={toggleSidebar}
@@ -193,12 +200,12 @@ function DashboardLayoutContent({
                 <>
                   <div className="flex items-center gap-3 min-w-0">
                     <img
-                      src={APP_LOGO}
+                      src={displayLogo}
                       className="h-8 w-8 rounded-md object-cover ring-1 ring-border shrink-0"
-                      alt="Logo"
+                      alt={displayName}
                     />
                     <span className="font-semibold tracking-tight truncate">
-                      {APP_TITLE}
+                      {displayName}
                     </span>
                   </div>
                   <button
@@ -294,6 +301,7 @@ function DashboardLayoutContent({
         
         {/* Barra de Navegação Horizontal */}
         <div className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 overflow-x-auto">
+          <CompanySelector />
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location === item.path;

@@ -18,6 +18,32 @@ export const appRouter = router({
     }),
   }),
 
+  // Router de empresas (multi-tenancy)
+  companies: router({
+    // Buscar empresa do usuário logado
+    getCurrent: protectedProcedure.query(async ({ ctx }) => {
+      const db = await import("./db");
+      if (!ctx.user!.companyId) {
+        return null;
+      }
+      return db.getCompanyById(ctx.user!.companyId);
+    }),
+    
+    // Listar todas as empresas (para seletor)
+    listAll: protectedProcedure.query(async () => {
+      const db = await import("./db");
+      return db.getAllCompanies();
+    }),
+    
+    // Buscar empresa por ID
+    getById: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .query(async ({ input }) => {
+        const db = await import("./db");
+        return db.getCompanyById(input.id);
+      }),
+  }),
+
   // Routers de funcionalidades
   projects: router({
     list: protectedProcedure.query(async ({ ctx }) => {

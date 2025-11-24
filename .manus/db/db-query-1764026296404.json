@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE companies SET \n  logo = 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d8/Nestl%C3%A9.svg/200px-Nestl%C3%A9.svg.png',\n  primaryColor = '#D71920',\n  secondaryColor = '#FFFFFF'\nWHERE id = 'nestle_brasil';\n\nUPDATE companies SET \n  logo = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Unilever.svg/200px-Unilever.svg.png',\n  primaryColor = '#0078D4',\n  secondaryColor = '#00A3E0'\nWHERE id = 'unilever_brasil';\n\nUPDATE companies SET \n  logo = 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/BRF_S.A._logo.svg/200px-BRF_S.A._logo.svg.png',\n  primaryColor = '#006838',\n  secondaryColor = '#FFD100'\nWHERE id = 'brf_brasil';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2AuGb6MUvfAYuNE.root --database CzSfK6KNPiZZKvnoesTzmB --execute UPDATE companies SET \n  logo = 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d8/Nestl%C3%A9.svg/200px-Nestl%C3%A9.svg.png',\n  primaryColor = '#D71920',\n  secondaryColor = '#FFFFFF'\nWHERE id = 'nestle_brasil';\n\nUPDATE companies SET \n  logo = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Unilever.svg/200px-Unilever.svg.png',\n  primaryColor = '#0078D4',\n  secondaryColor = '#00A3E0'\nWHERE id = 'unilever_brasil';\n\nUPDATE companies SET \n  logo = 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/BRF_S.A._logo.svg/200px-BRF_S.A._logo.svg.png',\n  primaryColor = '#006838',\n  secondaryColor = '#FFD100'\nWHERE id = 'brf_brasil';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 78
+}
