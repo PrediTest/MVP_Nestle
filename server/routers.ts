@@ -54,9 +54,10 @@ export const appRouter = router({
       const db = await import("./db");
       return db.getAllProjects();
     }),
-    getById: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ input }) => {
+    getById: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ input, ctx }) => {
       const db = await import("./db");
-      return db.getProjectById(input.id);
+      const companyId = ctx.user!.companyId ?? "default_company";
+      return db.getProjectById(input.id, companyId);
     }),
     create: protectedProcedure
       .input(
@@ -92,13 +93,15 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         const { id, ...data } = input;
-        return db.updateProject(id, data);
+        const companyId = ctx.user!.companyId ?? "default_company";
+        return db.updateProject(id, data, companyId);
       }),
     delete: protectedProcedure
       .input(z.object({ id: z.string() }))
       .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
-        return db.deleteProject(input.id);
+        const companyId = ctx.user!.companyId ?? "default_company";
+        return db.deleteProject(input.id, companyId);
       }),
   }),
 

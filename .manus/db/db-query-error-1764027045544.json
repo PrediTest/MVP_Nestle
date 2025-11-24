@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO projects (id, name, description, productType, factory, status, companyId, createdBy, createdAt, updatedAt) VALUES\n('proj_brf_1', 'Linha Sadia Premium', 'Desenvolvimento de nova linha premium de produtos Sadia', 'Carne Processada', 'Lucas do Rio Verde - MT', 'testing', 'brf_brasil', 'system', NOW(), NOW()),\n('proj_brf_2', 'Perdigão Zero Sódio', 'Reformulação de produtos Perdigão com redução de sódio', 'Embutidos', 'Rio Verde - GO', 'planning', 'brf_brasil', 'system', NOW(), NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2AuGb6MUvfAYuNE.root --database CzSfK6KNPiZZKvnoesTzmB --execute INSERT INTO projects (id, name, description, productType, factory, status, companyId, createdBy, createdAt, updatedAt) VALUES\n('proj_brf_1', 'Linha Sadia Premium', 'Desenvolvimento de nova linha premium de produtos Sadia', 'Carne Processada', 'Lucas do Rio Verde - MT', 'testing', 'brf_brasil', 'system', NOW(), NOW()),\n('proj_brf_2', 'Perdigão Zero Sódio', 'Reformulação de produtos Perdigão com redução de sódio', 'Embutidos', 'Rio Verde - GO', 'planning', 'brf_brasil', 'system', NOW(), NOW());",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1062 (23000) at line 1: Duplicate entry '?' for key 'projects.PRIMARY'"
+  ]
+}

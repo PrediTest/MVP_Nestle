@@ -145,10 +145,16 @@ export async function createProject(project: InsertProject) {
   return project;
 }
 
-export async function getProjectById(id: string) {
+export async function getProjectById(id: string, companyId?: string) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
+  
+  const conditions = [eq(projects.id, id)];
+  if (companyId) {
+    conditions.push(eq(projects.companyId, companyId));
+  }
+  
+  const result = await db.select().from(projects).where(and(...conditions)).limit(1);
   return result[0];
 }
 
@@ -164,10 +170,22 @@ export async function getAllProjects() {
   return db.select().from(projects);
 }
 
-export async function updateProject(id: string, data: Partial<InsertProject>) {
+export async function updateProject(id: string, data: Partial<InsertProject>, companyId?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  
+  // Validar que o projeto pertence à empresa antes de atualizar
+  if (companyId) {
+    const existing = await getProjectById(id, companyId);
+    if (!existing) {
+      throw new Error("Project not found or access denied");
+    }
+  }
+  
   await db.update(projects).set({ ...data, updatedAt: new Date() }).where(eq(projects.id, id));
+  
+  // Retornar o projeto atualizado
+  return getProjectById(id, companyId);
 }
 
 // ============ MANUFACTURING DATA ============
@@ -781,10 +799,18 @@ export async function getLatestMonteCarloSimulation(projectId: string) {
 
 
 
-export async function deleteProject(id: string) {
+export async function deleteProject(id: string, companyId?: string) {
   const db = await getDb();
   if (!db) {
     throw new Error("Database not available");
+  }
+  
+  // Validar que o projeto pertence à empresa antes de deletar
+  if (companyId) {
+    const existing = await getProjectById(id, companyId);
+    if (!existing) {
+      throw new Error("Project not found or access denied");
+    }
   }
   
   await db.delete(projects).where(eq(projects.id, id));

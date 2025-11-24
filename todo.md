@@ -399,3 +399,24 @@
 - [x] Testar white-label com Nestlé, Unilever e BRF
 - [x] Adicionar fallback para usuários sem empresa
 
+
+
+
+### Implementar Testes Automatizados de Isolamento
+
+- [x] Criar helpers de teste para simular usuários de diferentes empresas
+- [x] Criar mock de contexto tRPC com usuário autenticado
+- [x] Implementar testes de isolamento para Projects (list, getById, create, update, delete)
+- [x] Implementar testes de isolamento para Standards
+- [ ] Implementar testes de isolamento para Manufacturing Data
+- [x] Implementar testes de isolamento para Available Tests
+- [ ] Implementar testes de isolamento para Test Results
+- [ ] Implementar testes de isolamento para Monte Carlo Simulations
+- [ ] Implementar testes de isolamento para Sentiment Analysis
+- [ ] Implementar testes de isolamento para Social Media Accounts
+- [x] Validar que Empresa A não acessa dados da Empresa B
+- [x] Validar que Empresa B não acessa dados da Empresa C
+- [x] Executar todos os testes e garantir 100% de aprovação (15/15 Projects)
+- [x] Corrigir vulnerabilidades de segurança encontradas nos testes
+- [ ] Documentar estratégia de testes de isolamento
+
