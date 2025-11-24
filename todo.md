@@ -408,9 +408,9 @@
 - [x] Criar mock de contexto tRPC com usuário autenticado
 - [x] Implementar testes de isolamento para Projects (list, getById, create, update, delete)
 - [x] Implementar testes de isolamento para Standards
-- [ ] Implementar testes de isolamento para Manufacturing Data
+- [x] Implementar testes de isolamento para Manufacturing Data (11 testes, 100% passando)
 - [x] Implementar testes de isolamento para Available Tests
-- [ ] Implementar testes de isolamento para Test Results
+- [x] Implementar testes de isolamento para Test Results (14 testes, 50% passando - vulnerabilidades encontradas)
 - [ ] Implementar testes de isolamento para Monte Carlo Simulations
 - [ ] Implementar testes de isolamento para Sentiment Analysis
 - [ ] Implementar testes de isolamento para Social Media Accounts
@@ -419,4 +419,20 @@
 - [x] Executar todos os testes e garantir 100% de aprovação (15/15 Projects)
 - [x] Corrigir vulnerabilidades de segurança encontradas nos testes
 - [ ] Documentar estratégia de testes de isolamento
+
+
+
+
+### Vulnerabilidades de Segurança Encontradas pelos Testes
+
+- [ ] **tests.listByProject** não filtra por companyId - usuários podem listar testes de projetos de outras empresas
+- [ ] **tests.addToProject** não valida se projeto pertence à empresa antes de adicionar teste
+- [ ] **tests.addResult** não valida se projectTest pertence à empresa antes de adicionar resultado
+- [ ] **tests.updateProjectTest** não valida companyId antes de atualizar
+- [ ] **tests.deleteProjectTest** não valida companyId antes de deletar
+- [ ] Adicionar filtro de companyId em **getProjectTestsByProject** no db.ts
+- [ ] Adicionar validação de companyId em **createProjectTest** no db.ts
+- [ ] Adicionar validação de companyId em **createTestResult** no db.ts
+- [ ] Adicionar validação de companyId em **updateProjectTestStatus** no db.ts
+- [ ] Adicionar validação de companyId em **deleteProjectTest** no db.ts
 
