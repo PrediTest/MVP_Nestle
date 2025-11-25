@@ -536,3 +536,19 @@
 - [ ] Atualizar documentação técnica
 - [ ] Criar checkpoint
 
+
+
+
+### Criar Componente React PredictionResults
+
+- [x] Criar componente PredictionResults.tsx
+- [x] Adicionar visualização de risco geral (score + badge)
+- [x] Criar tabela de predições de testes com status
+- [x] Implementar gráfico de intervalos de confiança (Recharts)
+- [x] Criar visualização de feature importance (SHAP)
+- [x] Adicionar seção de recomendações
+- [x] Integrar componente em página de projeto (PredictionDemo)
+- [x] Adicionar rota /prediction-demo no App.tsx
+- [ ] Testar com dados reais do microserviço (requer microserviço rodando)
+- [ ] Criar checkpoint
+
