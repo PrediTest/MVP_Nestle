@@ -48,7 +48,8 @@ export const appRouter = router({
   projects: router({
     list: protectedProcedure.query(async ({ ctx }) => {
       const db = await import("./db");
-      return db.getProjectsByUser(ctx.user.id);
+      const companyId = ctx.user!.companyId ?? "default_company";
+      return db.getProjectsByCompany(companyId);
     }),
     listAll: protectedProcedure.query(async () => {
       const db = await import("./db");
@@ -66,17 +67,18 @@ export const appRouter = router({
           name: z.string(),
           description: z.string().optional(),
           productType: z.string().optional(),
-          factory: z.string().optional(),
-          startDate: z.date().optional(),
-          endDate: z.date().optional(),
+          targetMarket: z.string().optional(),
+          riskLevel: z.enum(["low", "medium", "high"]).optional(),
+          status: z.enum(["planning", "testing", "completed", "on_hold"]).optional(),
         })
       )
-      .mutation(async ({ ctx, input }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await import("./db");
         return db.createProject({
           ...input,
-          companyId: ctx.user!.companyId || "default_company",
+          companyId: ctx.user!.companyId ?? "default_company",
           createdBy: ctx.user.id,
+          createdAt: new Date(),
         });
       }),
     update: protectedProcedure
@@ -85,9 +87,10 @@ export const appRouter = router({
           id: z.string(),
           name: z.string().optional(),
           description: z.string().optional(),
-          status: z.enum(["planning", "testing", "completed", "cancelled"]).optional(),
-          riskScore: z.string().optional(),
-          successProbability: z.string().optional(),
+          productType: z.string().optional(),
+          targetMarket: z.string().optional(),
+          riskLevel: z.enum(["low", "medium", "high"]).optional(),
+          status: z.enum(["planning", "testing", "completed", "on_hold"]).optional(),
         })
       )
       .mutation(async ({ input, ctx }) => {
@@ -96,13 +99,11 @@ export const appRouter = router({
         const companyId = ctx.user!.companyId ?? "default_company";
         return db.updateProject(id, data, companyId);
       }),
-    delete: protectedProcedure
-      .input(z.object({ id: z.string() }))
-      .mutation(async ({ input, ctx }) => {
-        const db = await import("./db");
-        const companyId = ctx.user!.companyId ?? "default_company";
-        return db.deleteProject(input.id, companyId);
-      }),
+    delete: protectedProcedure.input(z.object({ id: z.string() })).mutation(async ({ input, ctx }) => {
+      const db = await import("./db");
+      const companyId = ctx.user!.companyId ?? "default_company";
+      return db.deleteProject(input.id, companyId);
+    }),
   }),
 
   manufacturing: router({
@@ -138,6 +139,13 @@ export const appRouter = router({
       const db = await import("./db");
       return db.getAllStandards(ctx.user!.companyId || "default_company");
     }),
+    getById: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .query(async ({ input, ctx }) => {
+        const db = await import("./db");
+        const companyId = ctx.user!.companyId ?? "default_company";
+        return db.getStandardById(input.id, companyId);
+      }),
     listByType: protectedProcedure
       .input(z.object({ type: z.enum(["company", "iso", "fda", "other", "anvisa", "mapa"]) }))
       .query(async ({ input }) => {

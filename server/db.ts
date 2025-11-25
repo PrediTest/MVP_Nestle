@@ -164,6 +164,12 @@ export async function getProjectsByUser(userId: string) {
   return db.select().from(projects).where(eq(projects.createdBy, userId));
 }
 
+export async function getProjectsByCompany(companyId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(projects).where(eq(projects.companyId, companyId));
+}
+
 export async function getAllProjects() {
   const db = await getDb();
   if (!db) return [];
@@ -219,6 +225,19 @@ export async function getAllStandards(companyId?: string) {
   }
   
   return db.select().from(standards);
+}
+
+export async function getStandardById(id: string, companyId?: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const conditions = [eq(standards.id, id)];
+  if (companyId) {
+    conditions.push(eq(standards.companyId, companyId));
+  }
+  
+  const result = await db.select().from(standards).where(and(...conditions)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
 }
 
 export async function getStandardsByType(type: "company" | "iso" | "fda" | "other" | "anvisa" | "mapa") {
