@@ -550,5 +550,21 @@
 - [x] Integrar componente em página de projeto (PredictionDemo)
 - [x] Adicionar rota /prediction-demo no App.tsx
 - [ ] Testar com dados reais do microserviço (requer microserviço rodando)
+- [x] Criar checkpoint (versão 0df31b08)
+
+
+
+
+### Criar Modal de Inserção de Dados para Predição
+
+- [x] Criar componente PredictionModal.tsx
+- [x] Implementar formulário de fórmula com adição dinâmica de ingredientes
+- [x] Adicionar campos de parâmetros de processo
+- [x] Criar presets para os 3 produtos Nestlé (Nescau, Ninho, Kit Kat)
+- [x] Adicionar validação de dados (total 100%)
+- [x] Integrar com tRPC predictions.predictWithML
+- [x] Adicionar loading states e tratamento de erros
+- [x] Integrar modal com PredictionDemo
+- [ ] Testar fluxo completo (requer microserviço rodando)
 - [ ] Criar checkpoint
 

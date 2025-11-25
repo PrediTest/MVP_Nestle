@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { PredictionResults } from "@/components/PredictionResults";
+import { PredictionModal } from "@/components/PredictionModal";
 import { Button } from "@/components/ui/button";
-import { trpc } from "@/lib/trpc";
-import { Loader2 } from "lucide-react";
 
 /**
  * Página de demonstração do componente PredictionResults
  * Mostra exemplo de predição para Nescau Zero Açúcar
  */
 export default function PredictionDemo() {
+  const [predictionResult, setPredictionResult] = useState<any>(null);
   const [showResults, setShowResults] = useState(false);
-  const predictMutation = trpc.predictions.predictWithML.useMutation();
 
   // Dados de exemplo para demonstração (caso microserviço não esteja disponível)
   const mockPrediction = {
@@ -89,39 +88,10 @@ export default function PredictionDemo() {
     monte_carlo_iterations: 10000,
   };
 
-  const handlePredict = async () => {
-    try {
-      // Tentar chamar microserviço real
-      const result = await predictMutation.mutateAsync({
-        projectId: "proj_demo_001",
-        productName: "Nescau Zero Açúcar",
-        formula: [
-          { name: "Cacau em pó", percentage: 35.0, supplier: "Barry Callebaut" },
-          { name: "Açúcar", percentage: 45.0 },
-          { name: "Lecitina de soja", percentage: 0.5 },
-          { name: "Maltodextrina", percentage: 15.0 },
-          { name: "Sal", percentage: 0.3 },
-          { name: "Vitaminas e minerais", percentage: 4.2 },
-        ],
-        processParameters: {
-          temperature: 75.0,
-          mixingTime: 12.0,
-          lineSpeed: 95.0,
-          pressure: 2.5,
-          humidity: 45.0,
-          ph: 6.8,
-        },
-        factory: "Araraquara - SP",
-        monteCarloIterations: 10000,
-      });
-
-      console.log("Prediction result:", result);
-      setShowResults(true);
-    } catch (error) {
-      console.error("Prediction failed, using mock data:", error);
-      // Usar dados mock se microserviço não estiver disponível
-      setShowResults(true);
-    }
+  const handlePredictionComplete = (prediction: any) => {
+    console.log("Prediction completed:", prediction);
+    setPredictionResult(prediction);
+    setShowResults(true);
   };
 
   return (
@@ -133,35 +103,26 @@ export default function PredictionDemo() {
             Exemplo de predição de resultados de testes para Nescau Zero Açúcar
           </p>
         </div>
-        <Button onClick={handlePredict} disabled={predictMutation.isLoading} size="lg">
-          {predictMutation.isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Predizendo...
-            </>
-          ) : (
-            "Gerar Predição"
-          )}
-        </Button>
+        <PredictionModal projectId="proj_demo_001" onPredictionComplete={handlePredictionComplete} />
       </div>
 
-      {showResults && (
+      {showResults && predictionResult && (
         <PredictionResults
-          projectId={mockPrediction.project_id}
-          productName={mockPrediction.product_name}
-          overallRiskScore={mockPrediction.overall_risk_score}
-          testPredictions={mockPrediction.test_predictions}
-          recommendations={mockPrediction.recommendations}
-          shapExplanation={mockPrediction.shap_explanation}
-          modelVersion={mockPrediction.model_version}
-          predictionTimestamp={mockPrediction.prediction_timestamp}
-          monteCarloIterations={mockPrediction.monte_carlo_iterations}
+          projectId={predictionResult.project_id || mockPrediction.project_id}
+          productName={predictionResult.product_name || mockPrediction.product_name}
+          overallRiskScore={predictionResult.overall_risk_score || mockPrediction.overall_risk_score}
+          testPredictions={predictionResult.test_predictions || mockPrediction.test_predictions}
+          recommendations={predictionResult.recommendations || mockPrediction.recommendations}
+          shapExplanation={predictionResult.shap_explanation || mockPrediction.shap_explanation}
+          modelVersion={predictionResult.model_version || mockPrediction.model_version}
+          predictionTimestamp={predictionResult.prediction_timestamp || mockPrediction.prediction_timestamp}
+          monteCarloIterations={predictionResult.monte_carlo_iterations || mockPrediction.monte_carlo_iterations}
         />
       )}
 
       {!showResults && (
         <div className="text-center py-20 text-muted-foreground">
-          <p>Clique em "Gerar Predição" para visualizar os resultados</p>
+          <p>Clique em "Gerar Predição ML" para abrir o modal e inserir os dados</p>
         </div>
       )}
     </div>
