@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 export const appRouter = router({
@@ -212,6 +213,91 @@ export const appRouter = router({
       const db = await import("./db");
       return db.getPredictionsByProject(input.projectId);
     }),
+    predictWithML: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.string(),
+          productName: z.string(),
+          formula: z.array(
+            z.object({
+              name: z.string(),
+              percentage: z.number(),
+              supplier: z.string().optional(),
+            })
+          ),
+          processParameters: z.object({
+            temperature: z.number(),
+            mixingTime: z.number(),
+            lineSpeed: z.number(),
+            pressure: z.number().optional(),
+            humidity: z.number().optional(),
+            ph: z.number().optional(),
+          }),
+          factory: z.string(),
+          monteCarloIterations: z.number().default(10000),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const axios = (await import("axios")).default;
+        const companyId = ctx.user!.companyId ?? "default_company";
+
+        try {
+          // Call Python microservice
+          const response = await axios.post(
+            "http://localhost:8001/predict",
+            {
+              project_id: input.projectId,
+              product_name: input.productName,
+              formula: input.formula,
+              process_parameters: {
+                temperature: input.processParameters.temperature,
+                mixing_time: input.processParameters.mixingTime,
+                line_speed: input.processParameters.lineSpeed,
+                pressure: input.processParameters.pressure,
+                humidity: input.processParameters.humidity,
+                ph: input.processParameters.ph,
+              },
+              factory: input.factory,
+              monte_carlo_iterations: input.monteCarloIterations,
+            },
+            {
+              timeout: 30000, // 30 seconds timeout
+            }
+          );
+
+          const prediction = response.data;
+
+          // Save to database
+          const db = await import("./db");
+          await db.createPrediction({
+            id: `pred_ml_${Date.now()}`,
+            companyId,
+            projectId: input.projectId,
+            modelVersion: prediction.model_version,
+            riskScore: prediction.overall_risk_score.toString(),
+            confidence: (100 - prediction.overall_risk_score).toString(),
+            failureFactors: JSON.stringify(
+              prediction.test_predictions
+                .filter((t: any) => t.status === "FAIL" || t.status === "WARNING")
+                .map((t: any) => `${t.test_name}: ${t.probability_of_fail * 100}% de falha`)
+            ),
+            recommendations: JSON.stringify(prediction.recommendations),
+            metrics: JSON.stringify({
+              testPredictions: prediction.test_predictions,
+              shapExplanation: prediction.shap_explanation,
+              monteCarloIterations: prediction.monte_carlo_iterations,
+            }),
+          });
+
+          return prediction;
+        } catch (error: any) {
+          console.error("Error calling TestPredictorService:", error.message);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to generate ML prediction: ${error.message}`,
+          });
+        }
+      }),
     create: protectedProcedure
       .input(
         z.object({

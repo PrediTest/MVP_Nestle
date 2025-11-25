@@ -1,0 +1,113 @@
+erDiagram
+    companies ||--o{ users : "1:N"
+    companies ||--o{ projects : "1:N"
+    companies ||--o{ standards : "1:N"
+    companies ||--o{ availableTests : "1:N"
+    companies ||--o{ manufacturingData : "1:N"
+    companies ||--o{ sentimentAlerts : "1:N"
+    
+    projects ||--o{ projectTests : "1:N"
+    projects ||--o{ manufacturingData : "1:N"
+    
+    availableTests ||--o{ projectTests : "1:N"
+    
+    projectTests ||--o{ testResults : "1:N"
+    projectTests ||--o{ monteCarloSimulations : "1:N"
+    
+    users ||--o{ projects : "createdBy"
+    
+    companies {
+        varchar id PK
+        varchar slug UK
+        varchar name
+        text logo
+        varchar primaryColor
+        varchar secondaryColor
+        varchar domain
+        json settings
+        boolean isActive
+        enum subscriptionTier
+        int maxUsers
+        int maxProjects
+        timestamp createdAt
+        timestamp updatedAt
+    }
+    
+    users {
+        varchar id PK
+        varchar companyId FK
+        varchar name
+        varchar email
+        enum role
+        timestamp createdAt
+        timestamp lastSignedIn
+    }
+    
+    projects {
+        varchar id PK
+        varchar companyId FK
+        varchar name
+        text description
+        varchar productType
+        enum status
+        enum riskLevel
+        varchar createdBy FK
+        timestamp createdAt
+        timestamp updatedAt
+    }
+    
+    projectTests {
+        varchar id PK
+        varchar companyId FK
+        varchar projectId FK
+        varchar testId FK
+        enum status
+        timestamp createdAt
+    }
+    
+    testResults {
+        varchar id PK
+        varchar companyId FK
+        varchar projectTestId FK
+        decimal value
+        varchar unit
+        timestamp createdAt
+    }
+    
+    availableTests {
+        varchar id PK
+        varchar companyId FK
+        varchar name
+        text description
+        varchar category
+        timestamp createdAt
+    }
+    
+    standards {
+        varchar id PK
+        varchar companyId FK
+        varchar code
+        varchar title
+        enum type
+        timestamp createdAt
+    }
+    
+    manufacturingData {
+        varchar id PK
+        varchar companyId FK
+        varchar projectId FK
+        varchar factory
+        decimal efficiency
+        decimal qualityScore
+        timestamp createdAt
+    }
+    
+    sentimentAlerts {
+        varchar id PK
+        varchar companyId FK
+        varchar projectId FK
+        enum severity
+        enum status
+        timestamp createdAt
+    }
+

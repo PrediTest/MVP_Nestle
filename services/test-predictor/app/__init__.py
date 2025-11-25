@@ -1,0 +1,5 @@
+"""
+TestPredictorService - ML-based test prediction microservice
+"""
+__version__ = "1.0.0"
+

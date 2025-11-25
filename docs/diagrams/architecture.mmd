@@ -1,0 +1,66 @@
+graph TB
+    subgraph Frontend["FRONTEND (React 19)"]
+        CC[CompanyContext<br/>empresa atual]
+        CS[CompanySelector<br/>trocar empresa]
+        UA[useAuth<br/>user + companyId]
+        TC[tRPC Client<br/>ctx.user.companyId]
+    end
+
+    subgraph API["API LAYER (tRPC + Express)"]
+        R1[projects router]
+        R2[standards router]
+        R3[tests router]
+        R4[manufacturing router]
+        R5[... 15 outros routers]
+        PP[protectedProcedure<br/>extrai ctx.user.companyId]
+    end
+
+    subgraph DB["DATABASE LAYER (Drizzle ORM)"]
+        DBF1[getProjectsByCompany<br/>WHERE companyId = ?]
+        DBF2[getStandardById<br/>AND companyId = ?]
+        DBF3[createProject<br/>INSERT companyId]
+        DBF4[updateProject<br/>VALIDATE companyId]
+    end
+
+    subgraph Database["DATABASE (MySQL/PlanetScale)"]
+        CT[companies<br/>id, slug, name, logo, colors]
+        T1[projects<br/>id, companyId, name, ...]
+        T2[standards<br/>id, companyId, code, ...]
+        T3[projectTests<br/>id, companyId, projectId, ...]
+        T4[... 16 outras tabelas]
+    end
+
+    CC --> TC
+    CS --> TC
+    UA --> TC
+    TC --> PP
+    
+    PP --> R1
+    PP --> R2
+    PP --> R3
+    PP --> R4
+    PP --> R5
+    
+    R1 --> DBF1
+    R2 --> DBF2
+    R3 --> DBF3
+    R4 --> DBF4
+    
+    DBF1 --> T1
+    DBF2 --> T2
+    DBF3 --> T1
+    DBF4 --> T1
+    
+    T1 --> CT
+    T2 --> CT
+    T3 --> CT
+    T4 --> CT
+
+    style Frontend fill:#e3f2fd
+    style API fill:#fff3e0
+    style DB fill:#f3e5f5
+    style Database fill:#e8f5e9
+    style CC fill:#2196f3,color:#fff
+    style PP fill:#ff9800,color:#fff
+    style CT fill:#4caf50,color:#fff
+

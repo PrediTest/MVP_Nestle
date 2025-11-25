@@ -465,3 +465,74 @@
 - [ ] Criar função getStandardById no db.ts com validação de companyId
 - [ ] Executar todos os 66 testes e validar 100% de aprovação
 
+
+
+
+### Criar Guia de Arquitetura Multi-Tenant
+
+- [ ] Planejar estrutura do documento
+- [ ] Documentar arquitetura multi-tenant (padrões, isolamento, segurança)
+- [ ] Documentar modelo de dados completo (19 tabelas + companies)
+- [ ] Documentar fluxo de autenticação (OAuth + Company Context)
+- [ ] Criar processo detalhado de onboarding de novas empresas
+- [ ] Documentar configuração de white-label UI
+- [ ] Documentar estratégia de testes de isolamento
+- [ ] Incluir melhores práticas (segurança, performance, escalabilidade)
+- [ ] Criar diagramas de arquitetura (ERD, fluxos, sequência)
+- [ ] Gerar PDF do documento
+- [ ] Atualizar todo.md com tarefas concluídas
+
+
+
+
+### Criar Microserviço TestPredictorService (ML + Monte Carlo)
+
+#### Fase 1: Planejamento e Estrutura
+- [x] Planejar arquitetura do microserviço FastAPI
+- [x] Definir estrutura de dados (input/output JSON)
+- [x] Definir modelos ML para cada produto (Nescau, Ninho, Kit Kat)
+- [x] Definir testes a serem previstos por produto
+
+#### Fase 2: Microserviço Python (FastAPI)
+- [x] Criar estrutura de diretórios `services/test-predictor/`
+- [x] Implementar FastAPI com endpoint `/predict`
+- [x] Criar modelos XGBoost/Random Forest para cada produto
+- [x] Implementar simulação Monte Carlo (10k iterações)
+- [x] Integrar SHAP para explicabilidade
+- [x] Criar funções de cálculo de risco e recomendações
+- [x] Adicionar validação de entrada (Pydantic)
+- [x] Implementar logging e tratamento de erros
+
+#### Fase 3: Integração com Backend Node.js
+- [x] Criar HTTP client no backend para chamar microserviço (axios)
+- [x] Atualizar router predictions com endpoint predictWithML
+- [x] Salvar predições na tabela predictions do banco
+- [x] Adicionar validação de companyId nas predições
+- [ ] Criar testes de integração
+
+#### Fase 4: Frontend
+- [ ] Criar componente PredictionResults para exibir predições
+- [ ] Adicionar gráficos de intervalos de confiança (Recharts)
+- [ ] Exibir SHAP explanations visualmente
+- [ ] Adicionar botão "Prever Resultados" nos projetos
+- [ ] Criar modal de entrada de fórmula e parâmetros
+
+#### Fase 5: Infraestrutura
+- [x] Criar Dockerfile para microserviço Python
+- [ ] Atualizar docker-compose.yml com test-predictor service
+- [ ] Configurar variáveis de ambiente
+- [x] Adicionar health check endpoint
+- [ ] Criar testes unitários (pytest)
+- [x] Documentar API do microserviço (README.md + Quickstart)
+
+**Status Geral:** Microserviço funcional e pronto para testes. Próximos passos: frontend + docker-compose + testes automatizados. (README.md + Quickstart)
+
+#### Fase 6: Testes e Validação
+- [ ] Testar predições para Nescau Zero Açúcar
+- [ ] Testar predições para Ninho Phases 4
+- [ ] Testar predições para Kit Kat Vegano
+- [ ] Validar isolamento multi-tenant
+- [ ] Executar testes de performance (latência < 2s)
+- [ ] Atualizar documentação técnica
+- [ ] Criar checkpoint
+

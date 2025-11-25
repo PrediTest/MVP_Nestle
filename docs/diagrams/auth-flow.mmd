@@ -1,0 +1,30 @@
+sequenceDiagram
+    participant Browser
+    participant Frontend
+    participant API
+    participant OAuth as Manus OAuth
+    participant DB as Database
+
+    Browser->>Frontend: 1. Acessa /
+    Frontend->>Frontend: 2. Verifica autenticação
+    Frontend->>Browser: 3. Redireciona para getLoginUrl()
+    Browser->>OAuth: 4. Usuário faz login
+    OAuth->>Browser: 5. Callback com code
+    Browser->>API: 6. POST /api/oauth/callback
+    API->>OAuth: 7. Troca code por token
+    OAuth->>API: 8. Retorna user info
+    API->>DB: 9. Busca/cria user com companyId
+    DB->>API: 10. Retorna user { id, companyId, role }
+    API->>API: 11. Cria session cookie (JWT)
+    API->>Browser: 12. Set-Cookie + Redirect /
+    Browser->>Frontend: 13. Acessa / com cookie
+    Frontend->>API: 14. trpc.auth.me.useQuery()
+    API->>API: 15. Extrai user do cookie
+    API->>Frontend: 16. Retorna { id, companyId, role }
+    Frontend->>API: 17. trpc.companies.getCurrent()
+    API->>DB: 18. SELECT * FROM companies WHERE id = companyId
+    DB->>API: 19. Retorna company { logo, colors, name }
+    API->>Frontend: 20. Retorna company
+    Frontend->>Frontend: 21. Aplica white-label UI
+    Frontend->>Browser: 22. Renderiza app personalizado
+
