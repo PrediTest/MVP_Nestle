@@ -210,9 +210,14 @@ export async function createStandard(standard: InsertStandard) {
   return standard;
 }
 
-export async function getAllStandards() {
+export async function getAllStandards(companyId?: string) {
   const db = await getDb();
   if (!db) return [];
+  
+  if (companyId) {
+    return db.select().from(standards).where(eq(standards.companyId, companyId));
+  }
+  
   return db.select().from(standards);
 }
 
@@ -661,11 +666,29 @@ export async function createAvailableTest(test: InsertAvailableTest) {
   return test;
 }
 
-export async function getAllAvailableTests() {
+export async function getAvailableTestById(id: string, companyId?: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const conditions = [eq(availableTests.id, id)];
+  if (companyId) {
+    conditions.push(eq(availableTests.companyId, companyId));
+  }
+  
+  const result = await db.select().from(availableTests).where(and(...conditions)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAllAvailableTests(companyId?: string) {
   const db = await getDb();
   if (!db) return [];
   
-  return await db.select().from(availableTests).where(eq(availableTests.isActive, true));
+  const conditions = [eq(availableTests.isActive, true)];
+  if (companyId) {
+    conditions.push(eq(availableTests.companyId, companyId));
+  }
+  
+  return await db.select().from(availableTests).where(and(...conditions));
 }
 
 export async function getAvailableTestsByCategory(category: string) {

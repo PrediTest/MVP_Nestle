@@ -134,9 +134,9 @@ export const appRouter = router({
   }),
 
   standards: router({
-    list: protectedProcedure.query(async () => {
+    list: protectedProcedure.query(async ({ ctx }) => {
       const db = await import("./db");
-      return db.getAllStandards();
+      return db.getAllStandards(ctx.user!.companyId || "default_company");
     }),
     listByType: protectedProcedure
       .input(z.object({ type: z.enum(["company", "iso", "fda", "other", "anvisa", "mapa"]) }))
@@ -1045,9 +1045,9 @@ export const appRouter = router({
   // Router de Testes e Simulação Monte Carlo
   tests: router({
     // Listar todos os testes disponíveis
-    listAvailable: publicProcedure.query(async () => {
+    listAvailable: protectedProcedure.query(async ({ ctx }) => {
       const db = await import("./db");
-      return await db.getAllAvailableTests();
+      return await db.getAllAvailableTests(ctx.user!.companyId || "default_company");
     }),
 
     // Listar testes por categoria
@@ -1425,6 +1425,56 @@ export const appRouter = router({
       }),
   }),
 
+  // Router de Testes Disponíveis (Available Tests)
+  availableTests: router({
+    // Listar todos os testes disponíveis
+    list: protectedProcedure.query(async ({ ctx }) => {
+      const db = await import("./db");
+      return await db.getAllAvailableTests(ctx.user!.companyId || "default_company");
+    }),
+
+    // Buscar teste específico por ID
+    getById: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .query(async ({ input, ctx }) => {
+        const db = await import("./db");
+        return await db.getAvailableTestById(input.id, ctx.user!.companyId || "default_company");
+      }),
+
+    // Criar novo teste disponível
+    create: protectedProcedure
+      .input(z.object({
+        id: z.string().optional(),
+        name: z.string(),
+        category: z.string(),
+        description: z.string().optional(),
+        unit: z.string().optional(),
+        minValue: z.union([z.number(), z.string()]).optional(),
+        maxValue: z.union([z.number(), z.string()]).optional(),
+        targetValue: z.union([z.number(), z.string()]).optional(),
+        tolerance: z.union([z.number(), z.string()]).optional(),
+        duration: z.number().optional(),
+        cost: z.union([z.number(), z.string()]).optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const db = await import("./db");
+        return db.createAvailableTest({
+          id: input.id || `test_${Date.now()}`,
+          name: input.name,
+          category: input.category,
+          description: input.description,
+          unit: input.unit,
+          minValue: typeof input.minValue === 'number' ? input.minValue.toString() : input.minValue,
+          maxValue: typeof input.maxValue === 'number' ? input.maxValue.toString() : input.maxValue,
+          targetValue: typeof input.targetValue === 'number' ? input.targetValue.toString() : input.targetValue,
+          tolerance: typeof input.tolerance === 'number' ? input.tolerance.toString() : input.tolerance,
+          duration: input.duration,
+          cost: typeof input.cost === 'number' ? input.cost.toString() : input.cost,
+          companyId: ctx.user!.companyId || "default_company",
+          isActive: true,
+        });
+      }),
+  }),
 
 });
 

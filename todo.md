@@ -436,3 +436,17 @@
 - [x] Adicionar validação de companyId em **updateProjectTestStatus** no db.ts
 - [x] Adicionar validação de companyId em **deleteProjectTest** no db.ts
 
+
+
+
+### Corrigir Módulos Restantes (Standards e Available Tests)
+
+- [x] Analisar testes falhando de Standards (7 testes)
+- [x] Analisar testes falhando de Available Tests (9 testes)
+- [x] Adicionar validação de companyId em getAllStandards no db.ts
+- [x] Criar router availableTests completo (list, getById, create)
+- [x] Adicionar validação de companyId em getAllAvailableTests no db.ts
+- [x] Adicionar validação de companyId em getAvailableTestById no db.ts
+- [x] Atualizar routers para passar companyId nas chamadas
+- [x] Executar todos os 66 testes - 62/66 passando (94%)
+
