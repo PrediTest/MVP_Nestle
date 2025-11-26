@@ -13,6 +13,7 @@ import AlertsDashboard from "./pages/AlertsDashboard";
 import ProductComparison from "./pages/ProductComparison";
 import TestManagement from "./pages/TestManagement";
 import PredictionDemo from "./pages/PredictionDemo";
+import CompaniesAdmin from "./pages/admin/Companies";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -27,6 +28,7 @@ function Router() {
        <Route path="/comparison" component={ProductComparison} />
       <Route path="/tests/:id" component={TestManagement} />
       <Route path="/prediction-demo" component={PredictionDemo} />
+      <Route path="/admin/companies" component={CompaniesAdmin} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

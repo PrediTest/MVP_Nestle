@@ -633,13 +633,13 @@
 
 ### Implementar Frontend /admin/companies
 
-- [ ] Criar diretório client/src/pages/admin/
-- [ ] Criar componente CompanyModal.tsx
-- [ ] Criar componente CompanyStatsCard.tsx
-- [ ] Criar página Companies.tsx com tabela shadcn/ui
-- [ ] Adicionar rota /admin/companies no App.tsx
+- [x] Criar diretório client/src/pages/admin/
+- [x] Criar componente CompanyModal.tsx
+- [x] Criar componente CompanyStatsCard.tsx
+- [x] Criar página Companies.tsx com grid shadcn/ui
+- [x] Adicionar rota /admin/companies no App.tsx
 - [ ] Adicionar link no menu de navegação (apenas para admins)
-- [ ] Testar CRUD completo via interface
+- [ ] Testar CRUD completo via interface (requer admin logado)
 - [ ] Validar upload de logo (futuro)
 
 ### Criar CI/CD Pipeline GitHub Actions
