@@ -1,0 +1,123 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+
+    - name: Instalar pnpm
+      run: npm install -g pnpm
+
+    - name: Instalar dependências
+      run: pnpm install
+
+    - name: Executar testes
+      run: pnpm test
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        VITE_APP_ID: ${{ secrets.VITE_APP_ID }}
+        OAUTH_SERVER_URL: ${{ secrets.OAUTH_SERVER_URL }}
+        VITE_OAUTH_PORTAL_URL: ${{ secrets.VITE_OAUTH_PORTAL_URL }}
+        OWNER_OPEN_ID: ${{ secrets.OWNER_OPEN_ID }}
+        OWNER_NAME: ${{ secrets.OWNER_NAME }}
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      if: success()
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage/coverage-final.json
+        flags: unittests
+        name: codecov-umbrella
+      continue-on-error: true
+
+  lint:
+    name: Run Linter
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22.x
+        cache: 'pnpm'
+
+    - name: Instalar pnpm
+      run: npm install -g pnpm
+
+    - name: Instalar dependências
+      run: pnpm install
+
+    - name: Executar linter
+      run: pnpm lint
+      continue-on-error: true
+
+  build:
+    name: Build Project
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22.x
+        cache: 'pnpm'
+
+    - name: Instalar pnpm
+      run: npm install -g pnpm
+
+    - name: Instalar dependências
+      run: pnpm install
+
+    - name: Build projeto
+      run: pnpm build
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        VITE_APP_ID: ${{ secrets.VITE_APP_ID }}
+        OAUTH_SERVER_URL: ${{ secrets.OAUTH_SERVER_URL }}
+        VITE_OAUTH_PORTAL_URL: ${{ secrets.VITE_OAUTH_PORTAL_URL }}
+        OWNER_OPEN_ID: ${{ secrets.OWNER_OPEN_ID }}
+        OWNER_NAME: ${{ secrets.OWNER_NAME }}
+        VITE_APP_TITLE: ${{ secrets.VITE_APP_TITLE }}
+        VITE_APP_LOGO: ${{ secrets.VITE_APP_LOGO }}
+        BUILT_IN_FORGE_API_URL: ${{ secrets.BUILT_IN_FORGE_API_URL }}
+        BUILT_IN_FORGE_API_KEY: ${{ secrets.BUILT_IN_FORGE_API_KEY }}
+        VITE_FRONTEND_FORGE_API_KEY: ${{ secrets.VITE_FRONTEND_FORGE_API_KEY }}
+        VITE_FRONTEND_FORGE_API_URL: ${{ secrets.VITE_FRONTEND_FORGE_API_URL }}
+        VITE_ANALYTICS_WEBSITE_ID: ${{ secrets.VITE_ANALYTICS_WEBSITE_ID }}
+        VITE_ANALYTICS_ENDPOINT: ${{ secrets.VITE_ANALYTICS_ENDPOINT }}
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: dist/
+        retention-days: 7

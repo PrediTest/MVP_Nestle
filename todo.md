@@ -644,12 +644,16 @@
 
 ### Criar CI/CD Pipeline GitHub Actions
 
-- [ ] Criar arquivo .github/workflows/test.yml
-- [ ] Configurar job de testes automatizados
-- [ ] Executar npm run test em cada push/PR
-- [ ] Bloquear merge se testes falharem
-- [ ] Adicionar badge de status no README.md
-- [ ] Testar pipeline com commit de teste
+- [x] Criar arquivo .github/workflows/ci.yml
+- [x] Configurar job de testes automatizados (Node 22.x, pnpm, coverage)
+- [x] Configurar job de linting (ESLint)
+- [x] Configurar job de build (dist artifacts)
+- [x] Executar em cada push/PR (main, develop)
+- [x] Criar documentação de branch protection (docs/CI_CD_SETUP.md)
+- [x] Documentar configuração de Secrets no GitHub
+- [x] Documentar badges de status para README.md
+- [ ] Adicionar badges no README.md (requer push para GitHub)
+- [ ] Testar pipeline com commit de teste (requer repositório GitHub)
 
 ### Testes de Isolamento Multi-Tenant para Admin
 
