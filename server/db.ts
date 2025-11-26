@@ -135,6 +135,45 @@ export async function updateCompany(id: string, data: Partial<InsertCompany>) {
   await db.update(companies).set({ ...data, updatedAt: new Date() }).where(eq(companies.id, id));
 }
 
+export async function deleteCompany(id: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  // Soft delete: apenas marca como inativa
+  await db.update(companies).set({ isActive: false, updatedAt: new Date() }).where(eq(companies.id, id));
+}
+
+export async function getCompanyStats(companyId: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  // Contar projetos
+  const projectsCount = await db.select({ count: sql<number>`count(*)` })
+    .from(projects)
+    .where(eq(projects.companyId, companyId));
+  
+  // Contar usuários
+  const usersCount = await db.select({ count: sql<number>`count(*)` })
+    .from(users)
+    .where(eq(users.companyId, companyId));
+  
+  // Contar predições
+  const predictionsCount = await db.select({ count: sql<number>`count(*)` })
+    .from(predictions)
+    .where(eq(predictions.companyId, companyId));
+  
+  // Contar alertas
+  const alertsCount = await db.select({ count: sql<number>`count(*)` })
+    .from(alerts)
+    .where(eq(alerts.companyId, companyId));
+  
+  return {
+    projectsCount: Number(projectsCount[0]?.count || 0),
+    usersCount: Number(usersCount[0]?.count || 0),
+    predictionsCount: Number(predictionsCount[0]?.count || 0),
+    alertsCount: Number(alertsCount[0]?.count || 0),
+  };
+}
+
 
 
 // ============ PROJECTS ============

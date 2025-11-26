@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -43,6 +43,129 @@ export const appRouter = router({
         const db = await import("./db");
         return db.getCompanyById(input.id);
       }),
+
+    // ========== ADMIN PROCEDURES ==========
+    admin: router({
+      // Listar todas as empresas (incluindo inativas)
+      listAll: adminProcedure.query(async () => {
+        const db = await import("./db");
+        const dbInstance = await db.getDb();
+        if (!dbInstance) return [];
+        
+        // Buscar todas as empresas sem filtro de isActive
+        const { companies } = await import("../drizzle/schema");
+        const { desc } = await import("drizzle-orm");
+        return dbInstance.select().from(companies).orderBy(desc(companies.createdAt));
+      }),
+
+      // Criar nova empresa
+      create: adminProcedure
+        .input(
+          z.object({
+            id: z.string(),
+            name: z.string().min(1, "Nome é obrigatório"),
+            industry: z.string().min(1, "Indústria é obrigatória"),
+            logo: z.string().url().optional(),
+            primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Cor primária deve ser hexadecimal (#RRGGBB)").optional(),
+            secondaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Cor secundária deve ser hexadecimal (#RRGGBB)").optional(),
+            country: z.string().optional(),
+            timezone: z.string().default("America/Sao_Paulo"),
+            subscriptionTier: z.enum(["trial", "basic", "professional", "enterprise"]).default("trial"),
+            maxUsers: z.number().int().positive().default(5),
+            maxProjects: z.number().int().positive().default(10),
+          })
+        )
+        .mutation(async ({ input }) => {
+          const db = await import("./db");
+          
+          // Verificar se empresa já existe
+          const existing = await db.getCompanyById(input.id);
+          if (existing) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "Empresa com este ID já existe",
+            });
+          }
+          
+          return db.createCompany(input);
+        }),
+
+      // Atualizar empresa
+      update: adminProcedure
+        .input(
+          z.object({
+            id: z.string(),
+            name: z.string().min(1).optional(),
+            industry: z.string().optional(),
+            logo: z.string().url().optional(),
+            primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+            secondaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+            country: z.string().optional(),
+            timezone: z.string().optional(),
+            subscriptionTier: z.enum(["trial", "basic", "professional", "enterprise"]).optional(),
+            maxUsers: z.number().int().positive().optional(),
+            maxProjects: z.number().int().positive().optional(),
+            isActive: z.boolean().optional(),
+          })
+        )
+        .mutation(async ({ input }) => {
+          const db = await import("./db");
+          const { id, ...data } = input;
+          
+          // Verificar se empresa existe
+          const existing = await db.getCompanyById(id);
+          if (!existing) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Empresa não encontrada",
+            });
+          }
+          
+          await db.updateCompany(id, data);
+          return { success: true };
+        }),
+
+      // Deletar empresa (soft delete)
+      delete: adminProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ input }) => {
+          const db = await import("./db");
+          
+          // Verificar se empresa existe
+          const existing = await db.getCompanyById(input.id);
+          if (!existing) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Empresa não encontrada",
+            });
+          }
+          
+          await db.deleteCompany(input.id);
+          return { success: true };
+        }),
+
+      // Obter estatísticas de uma empresa
+      getStats: adminProcedure
+        .input(z.object({ companyId: z.string() }))
+        .query(async ({ input }) => {
+          const db = await import("./db");
+          
+          // Verificar se empresa existe
+          const company = await db.getCompanyById(input.companyId);
+          if (!company) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Empresa não encontrada",
+            });
+          }
+          
+          const stats = await db.getCompanyStats(input.companyId);
+          return {
+            company,
+            stats,
+          };
+        }),
+    }),
   }),
 
   // Routers de funcionalidades

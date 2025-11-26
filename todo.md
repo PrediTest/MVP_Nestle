@@ -568,3 +568,41 @@
 - [ ] Testar fluxo completo (requer microserviço rodando)
 - [ ] Criar checkpoint
 
+
+
+### Fase 1.1: Painel de Gerenciamento de Empresas
+
+#### Backend
+- [x] Criar `adminProcedure` no tRPC (_core/trpc.ts) - Já existia
+- [x] Criar router `companies.admin` com 5 procedures:
+  - [x] `listAll()` - Listar todas as empresas (incluindo inativas)
+  - [x] `create()` - Criar nova empresa com validação
+  - [x] `update()` - Editar empresa (nome, logo, cores, quotas)
+  - [x] `delete()` - Desativar empresa (soft delete)
+  - [x] `getStats()` - Estatísticas por empresa (projetos, usuários, predições, alertas)
+- [x] Implementar funções de banco de dados em db.ts:
+  - [x] `getAllCompanies()` - Já existia
+  - [x] `createCompany(data)` - Já existia
+  - [x] `updateCompany(id, data)` - Já existia
+  - [x] `deleteCompany(id)` - Soft delete implementado
+  - [x] `getCompanyStats(companyId)` - Contadores implementados
+- [x] Adicionar validações Zod para inputs (regex para cores, min length, enums)
+- [x] Adicionar tratamento de erros (CONFLICT, NOT_FOUND, FORBIDDEN)
+
+#### Frontend
+- [ ] Criar página `/admin/companies`
+- [ ] Implementar tabela de empresas com shadcn/ui DataTable
+- [ ] Criar modal de criação de empresa
+- [ ] Criar modal de edição de empresa
+- [ ] Implementar upload de logo (S3)
+- [ ] Adicionar color picker para cores primárias
+- [ ] Implementar soft delete com confirmação
+- [ ] Adicionar cards de estatísticas por empresa
+- [ ] Adicionar rota no App.tsx
+- [ ] Adicionar menu no DashboardLayout (apenas para admins)
+
+#### Testes
+- [ ] Testar CRUD completo via tRPC
+- [ ] Validar restrição de acesso (apenas admins)
+- [ ] Testar upload de logo
+- [ ] Criar checkpoint
