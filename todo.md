@@ -629,3 +629,58 @@
 - [x] Total: 28 testes implementados
 - [x] Executar todos os testes e garantir 100% de aprovação (27/27 passando)
 - [ ] Criar checkpoint
+
+
+### Implementar Frontend /admin/companies
+
+- [ ] Criar diretório client/src/pages/admin/
+- [ ] Criar componente CompanyModal.tsx
+- [ ] Criar componente CompanyStatsCard.tsx
+- [ ] Criar página Companies.tsx com tabela shadcn/ui
+- [ ] Adicionar rota /admin/companies no App.tsx
+- [ ] Adicionar link no menu de navegação (apenas para admins)
+- [ ] Testar CRUD completo via interface
+- [ ] Validar upload de logo (futuro)
+
+### Criar CI/CD Pipeline GitHub Actions
+
+- [ ] Criar arquivo .github/workflows/test.yml
+- [ ] Configurar job de testes automatizados
+- [ ] Executar npm run test em cada push/PR
+- [ ] Bloquear merge se testes falharem
+- [ ] Adicionar badge de status no README.md
+- [ ] Testar pipeline com commit de teste
+
+### Testes de Isolamento Multi-Tenant para Admin
+
+- [ ] Criar arquivo server/companies.admin.isolation.test.ts
+- [ ] Testar que admin Empresa A não pode modificar Empresa B
+- [ ] Testar que admin Empresa A não pode deletar Empresa B
+- [ ] Testar que admin Empresa A não pode ver stats da Empresa B
+- [ ] Executar todos os testes e garantir 100% de aprovação
+
+### Gerar Hash INPI para Registro
+
+- [ ] Criar script para gerar hash SHA-256 da plataforma
+- [ ] Incluir código-fonte, arquitetura e documentação
+- [ ] Gerar certificado de autenticidade com timestamp
+- [ ] Criar documento de registro INPI
+- [ ] Salvar hash em arquivo INPI_HASH.txt
+
+### Checkpoint Final
+
+- [ ] Executar todos os testes (multi-tenancy + admin + isolamento)
+- [ ] Validar frontend funcionando
+- [ ] Criar checkpoint final
+
+---
+
+## Documento Consolidado Criado
+
+- [x] Criar documento `docs/PROXIMAS_IMPLEMENTACOES.md` com:
+  - [x] Instruções completas para frontend /admin/companies
+  - [x] Configuração CI/CD GitHub Actions
+  - [x] Código de testes de isolamento multi-tenant
+  - [x] Script de geração de hash INPI
+  - [x] Ordem de implementação recomendada
+  - [x] Checklist final de validação
