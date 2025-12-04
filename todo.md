@@ -688,3 +688,38 @@
   - [x] Script de geração de hash INPI
   - [x] Ordem de implementação recomendada
   - [x] Checklist final de validação
+
+
+### Criar Documento de Segurança e Privacidade Multi-Tenant + ML
+
+- [x] Identificar desafios de segurança em arquitetura multi-tenant (4 categorias)
+- [x] Identificar desafios de privacidade em microserviços ML (4 categorias)
+- [x] Documentar como tRPC mitiga riscos (3 mecanismos)
+- [x] Documentar como Drizzle ORM mitiga riscos (3 mecanismos)
+- [x] Documentar como FastAPI mitiga riscos (3 mecanismos)
+- [x] Criar tabelas comparativas de vulnerabilidades vs mitigações (12 vulnerabilidades)
+- [x] Incluir exemplos de código do PrediTest AI
+- [x] Criar documento final em docs/SECURITY_PRIVACY_ANALYSIS.md (9 seções, 15 páginas)
+
+
+### Criar Exemplos de Código de Mitigações de Segurança
+
+- [x] Criar exemplos de Data Leakage (tRPC + Drizzle) - 3 passos + validação
+- [x] Criar exemplos de Privilege Escalation (tRPC) - 3 passos + 3 testes
+- [x] Criar exemplos de SQL Injection (Drizzle) - 3 exemplos + validação
+- [x] Criar exemplos de IDOR (tRPC + Drizzle) - 2 exemplos + 2 testes
+- [x] Incluir código vulnerável vs código seguro para cada caso
+- [x] Adicionar explicações detalhadas de cada mitigação
+- [x] Adicionar exemplo FastAPI + Pydantic (microserviço ML)
+- [x] Criar tabela comparativa Vulnerável vs Seguro
+- [x] Criar documento final em docs/SECURITY_CODE_EXAMPLES.md (7 seções, 20+ exemplos)
+
+
+### Upload Completo para GitHub
+
+- [ ] Verificar .gitignore (node_modules, .env, dist, etc)
+- [ ] Criar README.md completo com instruções de setup
+- [ ] Verificar status do git (arquivos não commitados)
+- [ ] Fazer commit de todos os arquivos
+- [ ] Push para repositório GitHub (PrediTest/MVP_Nestle)
+- [ ] Validar que todos os arquivos foram enviados
